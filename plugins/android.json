@@ -1,0 +1,21 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "cf.omthakkar.sksattendance"
+    },
+    "cordova-plugin-geolocation": {
+      "PACKAGE_NAME": "cf.omthakkar.sksattendance"
+    },
+    "cordova-plugin-bluetooth-serial": {
+      "PACKAGE_NAME": "cf.omthakkar.sksattendance"
+    }
+  },
+  "dependent_plugins": {}
+}
