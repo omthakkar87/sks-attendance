@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
+import StudentProfile from '@/components/StudentProfile'
 import SignUp from '@/components/SignUp'
 import StudentHome from '@/components/StudentHome'
 import FacultyHome from '@/components/FacultyHome'
@@ -24,6 +25,11 @@ export default new Router({
       path: '/Login',
       name: 'Login',
       component: Login
+    },
+    {
+      path: '/StudentProfile',
+      name: 'StudentProfile',
+      component: StudentProfile
     },
     {
       path: '/SignUp',

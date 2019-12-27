@@ -60,6 +60,7 @@ export default {
     },
     editProfile(){
       console.log("Edit Profile")
+      this.$router.push('/StudentProfile');
     }
   },
   mounted() {
