@@ -1,75 +1,114 @@
 <template>
   <v-container>
-    <h1>{{this.$route.params.sessionid}}</h1>
-    <v-containers fluid>
+    <v-container class="d-flex align-end flex-column">
+      <v-btn outlined @click="endSession">End Session</v-btn>
+    </v-container>
+    <h1 class="text-center">{{this.$route.params.sessionid}}</h1>
+    <v-container fluid>
       <v-layout row wrap>
-        <v-flex xs3 v-for="session in sessions" :key="session">
-          <v-card @click="mark(session.roll)" class="xs4 ma-1 text-xs-center" :color="session.coll">
-              <v-card-text>{{session.roll}}</v-card-text>
+        <v-flex xs3 v-for="(session,index) in sessions" :key="index">
+          <v-card @click="mark(session.roll)" class="xs4 ma-1 text-center" :color="session.status">
+            <v-card-text>{{session.roll}}</v-card-text>
           </v-card>
         </v-flex>
       </v-layout>
-    </v-containers>
+    </v-container>
   </v-container>
 </template>
 
 <script>
+import firebase from "firebase";
+
+const convertArrayToObject = (array, key) => {
+  const initialValue = {};
+  return array.reduce((obj, item) => {
+    return {
+      ...obj,
+      [item[key]]: item
+    };
+  }, initialValue);
+};
+
 export default {
   data() {
     return {
-        coll:"yellow",
+      status: "yellow",
+      class: "TYBSCIT-A",
+      subject: "SIC",
       sessions: [
-        {roll:"01", coll:""},
-        {roll:"02",coll:""},
-        "03",
-        "04",
-        "05",
-        "06",
-        "07",
-        "08",
-        "09",
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29,
-        30
       ]
     };
   },
-  methods:{
-      mark(roll){
-          var filter = this.sessions.find((item,i)=>{
-              if(item.roll == roll){
-                  if(this.sessions[i].coll == "red"){
-                      this.sessions[i].coll = "green"
-                  }
-                  else if(this.sessions[i].coll == "green"){
-                      this.sessions[i].coll = "red"
-                  }
-                  else{
-                    this.sessions[i].coll = "red"
-                  }
-              }
-          })
-      }
+  methods: {
+    endSession() {
+      var attendance = convertArrayToObject(this.sessions, "id");
+      console.log(attendance);
+      firebase
+        .database()
+        .ref(
+          "attendance/" +
+            this.class +
+            "/" + this.subject + "/" +
+            Date.now()
+        )
+        .set(attendance)
+        .then(() => {
+          this.$router.push("/FacultyHome");
+        });
+    },
+    mark(roll) {
+      var filter = this.sessions.find((item, i) => {
+        if (item.roll == roll) {
+          if (this.sessions[i].status == "red") {
+            this.sessions[i].status = "green";
+          } else if (this.sessions[i].status == "green") {
+            this.sessions[i].status = "red";
+          } else {
+            this.sessions[i].status = "red";
+          }
+        }
+      });
+    }
   },
-  mounted() {}
+  mounted() {
+    firebase
+      .database()
+      .ref("students/" + this.class)
+      .once("value", snapshot => {
+        snapshot.forEach(student => {
+          this.sessions.push({
+            roll: student.key,
+            id: student.val().id,
+            uid: student.val().uid,
+            status: "",
+            sessionid: this.$route.params.sessionid
+          });
+        });
+      });
+
+    firebase
+      .database()
+      .ref("sessions/" + this.$route.params.sessionid + "/attendance/")
+      .on("value", snapshot => {
+        snapshot.forEach(student => {
+          var result = this.sessions.find((obj, i) => {
+            if (obj.id == student.key) {
+              this.sessions[i].status = "blue";
+              this.sessions[i].gps = student.val().gps;
+            }
+          });
+          if (student.val().bt) {
+            var result = this.sessions.find((obj, i) => {
+              if (obj.id == student.key) {
+                this.sessions[i].status = "green";
+                this.sessions[i].bt = student.val().bt;
+              }
+            });
+          }
+          console.log(student.val());
+        });
+      });
+  }
 };
 </script>
 

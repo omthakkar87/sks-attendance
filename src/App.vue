@@ -1,6 +1,6 @@
 <template>
-  <v-app dark>
-    <v-toolbar app>
+  <v-app>
+    <v-app-bar app>
       <v-toolbar-title class="headline text-uppercase">
         <span>SKS</span>
         <span class="font-weight-light">Attendance</span>
@@ -8,21 +8,20 @@
       <v-spacer></v-spacer>
       <v-menu offset-y>
         <template v-slot:activator="{ on }">
-          <v-btn icon flat v-on="on">
-            <v-icon>account_circle</v-icon>
+          <v-btn icon text v-on="on">
+            <v-icon>mdi-account-circle</v-icon>
           </v-btn>
         </template>
         <v-list>
-          <v-list-tile>
-            <v-list-tile-title @click="editProfile">Edit Profile</v-list-tile-title>
-          </v-list-tile>
-          <v-list-tile>
-            
-            <v-list-tile-title @click="signOut">Sign Out</v-list-tile-title>
-          </v-list-tile>
+          <v-list-item @click="editProfile">
+            <v-list-item-title>{{"Edit Profile"}}</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="signOut">
+            <v-list-item-title>{{"Sign Out"}}</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-menu>
-    </v-toolbar>
+    </v-app-bar>
 
     <v-content>
       <router-view></router-view>
@@ -31,18 +30,9 @@
 </template>
 
 <script>
-// index.js or main.js
-import "vuetify/dist/vuetify.min.css"; // Ensure you are using css-loader
-
+import firebase from "firebase";
 import Home from "./components/Home";
 import Login from "./components/Login";
-import Vue from "vue";
-import Vuetify from "vuetify";
-Vue.use(Vuetify, {
-  theme: {
-    primary: "#00bcd4"
-  }
-});
 export default {
   name: "App",
   components: {
@@ -53,45 +43,36 @@ export default {
     return {
     };
   },
-  methods:{
-    signOut(){
+  methods: {
+    signOut() {
       firebase.auth().signOut();
       console.log("Sign Out");
     },
-    editProfile(){
-      console.log("Edit Profile")
-      this.$router.push('/StudentProfile');
+    editProfile() {
+      console.log("Edit Profile");
+      this.$router.push("/StudentProfile");
     }
   },
   mounted() {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        // User is signed in.
-        var displayName = user.displayName;
-        var email = user.email;
-        var emailVerified = user.emailVerified;
-        var photoURL = user.photoURL;
-        var isAnonymous = user.isAnonymous;
-        var uid = user.uid;
-        var providerData = user.providerData;
-        // ...
-        firebase.database().ref('users/' + uid).once('value',(snapshot)=>{
+        firebase
+          .database()
+          .ref("users/" + user.uid)
+          .once("value", snapshot => {
             var userdata = snapshot.val();
-            if(userdata.role == 'student'){
-                this.$router.push('/StudentHome');
+            if (userdata.role == "student") {
+              this.$router.push("/StudentHome");
+            } else if (userdata.role == "faculty") {
+              this.$router.push("/FacultyHome");
+            } else if (userdata.role == "admin") {
+              this.$router.push("/AdminHome");
+            } else {
+              this.$router.push("/Home");
             }
-            else if(userdata.role == 'faculty'){
-                this.$router.push('/FacultyHome');
-            }
-            else if(userdata.role == 'admin'){
-                this.$router.push('/AdminHome')
-            }
-            else {
-                this.$router.push('/Home');
-            }
-        })
+          });
       } else {
-        this.$router.push('/Login');
+        this.$router.push("/Login");
         // User is signed out.
         // ...
       }

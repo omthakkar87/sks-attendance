@@ -5,7 +5,7 @@
         <v-flex xs12 sm6 pa-2>
           <v-card color="primary">
             <v-layout>
-              <v-flex xs12 class="text-xs-center">
+              <v-flex xs12 class="text-center">
                 <v-card-title primary-title>
                   <div style="width:100%;">
                     <div class="headline">Mark Attendance</div>
@@ -17,11 +17,11 @@
             <v-divider></v-divider>
             <v-card-actions class="pa-2">
               <v-spacer></v-spacer>
-              <v-btn flat @click="codeDialog = true">Enter Code</v-btn>
-              <v-dialog v-model="codeDialog" max-width="220px">
+              <v-btn text @click="codeDialog = true">Enter Code</v-btn>
+              <v-dialog v-model="codeDialog" max-width="320px">
                 <v-card>
-                  <v-card-text class="text-xs-center">
-                    <h3>Enter Session Code</h3>
+                  <v-card-text class="text-center">
+                    <v-card-title>Enter Session Code</v-card-title>
                   </v-card-text>
                   <v-card-text class="text-xs-right">
                     <v-form @submit.prevent="codeDialog=false; mark()">
@@ -31,14 +31,14 @@
                         label="Session Code"
                         type="text"
                         v-model="code"
-                        mask="# # # #"
+                        v-mask="mask"
                       ></v-text-field>
                     </v-form>
                   </v-card-text>
                   <v-divider></v-divider>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" flat @click="codeDialog=false; mark()">Start</v-btn>
+                    <v-btn color="primary" text @click="codeDialog=false; mark()">Start</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -48,7 +48,7 @@
         <v-flex xs12 sm6 pa-2>
           <v-card color="primary darken-3">
             <v-layout>
-              <v-flex xs12 class="text-xs-center">
+              <v-flex xs12 class="text-center">
                 <v-card-title primary-title>
                   <div style="width:100%;">
                     <div class="headline">View Report</div>
@@ -60,7 +60,7 @@
             <v-divider></v-divider>
             <v-card-actions class="pa-2">
               <v-spacer></v-spacer>
-              <v-btn flat @click="studentreport">Generate Report</v-btn>
+              <v-btn text @click="studentreport">Generate Report</v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
@@ -70,11 +70,17 @@
 </template>
 
 <script>
+import firebase from "firebase";
+import { mask } from "vue-the-mask";
 export default {
+  directives: {
+    mask
+  },
   data() {
     return {
       code: "",
-      codeDialog: ""
+      codeDialog: "",
+      mask: "####"
     };
   },
   methods: {

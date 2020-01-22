@@ -12,43 +12,83 @@
               <v-card-text>
                 <v-form @submit.prevent="signup">
                   <v-text-field
+                    v-model="name"
+                    prepend-icon="mdi-account"
+                    name="Name"
+                    :rules="[rules.required]"
+                    label="Name"
+                    type="text"
+                  ></v-text-field>
+                  <v-text-field
                     v-model="collegeid"
-                    prepend-icon="assignment_ind"
+                    prepend-icon="mdi-clipboard-account"
                     name="CollegeID"
                     label="College ID"
                     type="text"
-                    mask="## #### ####"
+                    :rules="[rules.required]"
+                    v-mask="mask"
                   ></v-text-field>
                   <v-text-field
+                    v-model="rollno"
+                    prepend-icon="mdi-numeric"
+                    name="RollNo"
+                    label="Roll No."
+                    :rules="[rules.required]"
+                    type="text"
+                  ></v-text-field>
+                  <v-select
+                    :items="divisions"
+                    v-model="division"
+                    prepend-icon="mdi-alphabetical"
+                    name="Division"
+                    :rules="[rules.required]"
+                    label="Division"
+                  ></v-select>
+                  <v-select
+                    :items="courses"
+                    v-model="course"
+                    prepend-icon="mdi-book-multiple"
+                    name="Course"
+                    :rules="[rules.required]"
+                    label="Course"
+                  ></v-select>
+                  <v-select
+                    :items="years"
+                    v-model="year"
+                    prepend-icon="mdi-book-open"
+                    name="Year"
+                    :rules="[rules.required]"
+                    label="Year"
+                  ></v-select>
+
+                  <v-text-field
                     v-model="email"
-                    :rules="emailRules"
-                    prepend-icon="email"
+                    prepend-icon="mdi-email"
                     name="Email"
                     label="Email"
+                    :rules="[rules.required, rules.email]"
                     type="email"
                   ></v-text-field>
                   <v-text-field
-                    prepend-icon="lock"
+                    prepend-icon="mdi-lock"
                     id="password"
-                    :append-icon="show1 ? 'visibility' : 'visibility_off'"
-                    :rules="passwordRules"
+                    :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                     :type="show1 ? 'text' : 'password'"
-                    name="input-10-1"
+                    name="Password"
                     label="Password"
                     v-model="password"
-                    hint="At least 8 characters"
+                    :rules="[rules.required, rules.counter]"
                     @click:append="show1 = !show1"
                   ></v-text-field>
                   <v-text-field
-                    prepend-icon="lock"
+                    prepend-icon="mdi-lock"
                     id="password2"
-                    :append-icon="show2 ? 'visibility' : 'visibility_off'"
-                    :rules="passwordRules"
+                    :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
                     :type="show2 ? 'text' : 'password'"
-                    name="input-10-1"
+                    name="ConfirmPassword"
                     label="Confirm Password"
                     v-model="password2"
-                    hint="At least 8 characters"
+                    :rules="[rules.required, passwordConfirmationRule]"
                     @click:append="show2 = !show2"
                   ></v-text-field>
                   <v-card-actions>
@@ -70,27 +110,59 @@
   </div>
 </template>
 
+
 <script>
+import { mask } from "vue-the-mask";
+import firebase from "firebase";
 export default {
+  directives: {
+    mask
+  },
   data() {
     return {
+      mask: "##########",
+      name: "",
       show1: false,
       show2: false,
-      collegeid: "",
+      collegeid: null,
+      rollno: null,
       email: "",
+      courses: [
+        { text: "B. Sc. IT", value: "BSCIT" },
+        { text: "B. Sc. CS", value: "BSCCS" },
+        { text: "B. A.", value: "BA" }
+      ],
+      course: "",
+      divisions: [
+        { text: "A", value: "A" },
+        { text: "B", value: "B" },
+        { text: "C", value: "C" }
+      ],
+      division: "",
+      years: [
+        { text: "First Year (FY)", value: "FY" },
+        { text: "Second Year (SY)", value: "SY" },
+        { text: "Third Year (TY)", value: "TY" }
+      ],
+      year: "",
       disabled: false,
       loading: false,
       password: "",
       password2: "",
-      passwordRules: [
-        v => !!v || "Password is Required",
-        v => v.length >= 8 || "Min 8 characters"
-      ],
-      emailRules: [
-        v => !!v || "E-mail is Required",
-        v => /.+@.+/.test(v) || "E-mail must be valid"
-      ]
+      rules: {
+        required: value => !!value || "Required.",
+        counter: value => value.length >= 8 || "Min 8 characters",
+        email: value => {
+          const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return pattern.test(value) || "Invalid e-mail.";
+        }
+      }
     };
+  },
+  computed: {
+    passwordConfirmationRule() {
+      return this.password === this.password2 || "Password must match";
+    }
   },
   methods: {
     signup() {
@@ -112,10 +184,32 @@ export default {
               alert(error.code + " : " + error.message);
               this.loading = false;
               this.disabled = false;
-            }).then(successs => {
-                firebase.database().ref('users/'+ firebase.auth().currentUser.uid).set({
-                    role:"student",
-                    id: this.collegeid    
+            })
+            .then(successs => {
+              firebase
+                .database()
+                .ref("users/" + firebase.auth().currentUser.uid)
+                .set({
+                  role: "student",
+                  id: this.collegeid
+                })
+                .then(() => {
+                  firebase
+                    .database()
+                    .ref(
+                      "students/" +
+                        this.year +
+                        this.course +
+                        "-" +
+                        this.division +
+                        "/" +
+                        this.rollno
+                    )
+                    .update({
+                      id: this.collegeid,
+                      name: this.name,
+                      uid: firebase.auth().currentUser.uid
+                    });
                 });
             });
         })

@@ -1,5 +1,5 @@
 <template>
-  <div class="mark text-xs-center">
+  <div class="mark text-center">
     <v-container pt-5>
       <h1>Waiting For Server</h1>
       <h3>To Mark Your Attendance</h3>
@@ -14,6 +14,7 @@
 
 <script>
 import { insidePolygon } from "geolocation-utils";
+import firebase from "firebase";
 export default {
   data() {
     return {
@@ -62,7 +63,12 @@ export default {
           this.gps.inside = x;
           firebase
             .database()
-            .ref("sessions/" + this.$route.params.sessionid + "/" + this.id)
+            .ref(
+              "sessions/" +
+                this.$route.params.sessionid +
+                "/attendance/" +
+                this.id
+            )
             .update({
               gps: this.gps
             });
@@ -76,7 +82,13 @@ export default {
     getbt() {
       firebase
         .database()
-        .ref("sessions/" + this.$route.params.sessionid + "/" + this.id + "/bt")
+        .ref(
+          "sessions/" +
+            this.$route.params.sessionid +
+            "/attendance/" +
+            this.id +
+            "/bt"
+        )
         .on("value", snapshot => {
           if (snapshot.val() == null) {
             console.log("getbt -> BT NULL : " + JSON.stringify(snapshot.val()));
@@ -96,8 +108,10 @@ export default {
       this.getgps();
       //discovering others now
       bluetoothSerial.setDeviceDiscoveredListener(device => {
-        console.log("Found: " + device.name);
-        devices.push(device.name);
+        if (device.name) {
+          console.log("Found: " + device.name);
+          devices.push(device.name);
+        }
       });
       bluetoothSerial.discoverUnpaired(
         success => {
@@ -113,7 +127,7 @@ export default {
                 .ref(
                   "sessions/" +
                     this.$route.params.sessionid +
-                    "/" +
+                    "/attendance/" +
                     device.substring(3)
                 )
                 .update({
