@@ -1,20 +1,38 @@
 <template>
   <div class="ma-4">
-    <h3 class="text-center ma-5">No. Of Lectures : {{total}}</h3>
+    <v-select
+      :items="subjects"
+      @change="getAttendance()"
+      class="px-5"
+      label="Select Class"
+      v-model="subject"
+      return-object
+    ></v-select>
+    <v-text-field
+      class="px-5"
+      max="100"
+      min="0"
+      v-mask="mask"
+      label="Defaulters %"
+      v-model="cutoff"
+    ></v-text-field>
+    <h3 class="text-center pa-3">No. Of Lectures : {{total}}</h3>
     <v-data-table
       :single-expand="true"
       :expanded.sync="expanded"
       item-key="roll"
+      class="mt-3 pt-3"
       @click:row="expandRow"
+      hide-default-footer
       :mobile-breakpoint="10"
-      :items="dataitems"
+      :items="getDefaulters"
       :headers="headers"
       :items-per-page="-1"
     >
       <template v-slot:expanded-item="{item,headers}">
         <td :colspan="headers.length">
           <v-card class="ma-3 pa-3" raised>
-              <h3 class="text-center">{{item.name}}</h3>
+            <h3 class="text-center">{{item.name}}</h3>
             <v-simple-table dense>
               <template v-slot:default>
                 <thead>
@@ -39,6 +57,7 @@
         </td>
       </template>
     </v-data-table>
+    <v-text-field v-model="cutoffValue" class="d-none"></v-text-field>
     <!-- <v-container v-for="(subjects,ind) in attendance" :key="ind">
       <h1 class="text-center">subject</h1>
       <v-card v-for="(attend, i) in subjects" :key="i" class="ma-3">
@@ -58,15 +77,22 @@
 
 <script>
 import firebase from "firebase";
+import { mask } from "vue-the-mask";
 export default {
+  directives: {
+    mask
+  },
   data() {
     return {
       attendance: {},
+      mask: "###",
       total: 0,
       expanded: [],
+      cutoff: 100,
       subject: "BI",
       classes: "TYBSCIT-A",
       dataitems: [],
+      subjects: [],
       headers: [
         { text: "R.No.", value: "roll" },
         { text: "Student Name", value: "name" },
@@ -75,6 +101,30 @@ export default {
         { text: "%", value: "percentage" }
       ]
     };
+  },
+  computed: {
+    cutoffValue() {
+      if (this.cutoff >= 100) {
+        return (this.cutoff = 100);
+      } else if (this.cutoff <= 0) {
+        return (this.cutoff = 0);
+      } else {
+        return this.cutoff;
+      }
+    },
+    getDefaulters() {
+      if (this.cutoff == null) {
+        let filteredDefaulters = this.dataitems.filter(student => {
+          return student.percentage < 100;
+        });
+        return filteredDefaulters;
+      } else {
+        let filteredDefaulters = this.dataitems.filter(student => {
+          return student.percentage < this.cutoff;
+        });
+        return filteredDefaulters;
+      }
+    }
   },
   methods: {
     expandRow(item) {
@@ -96,16 +146,38 @@ export default {
           for (var student in this.attendance[subject][timestamp]) {
             if (this.attendance[subject][timestamp][student].id == clgid) {
               var roll = this.attendance[subject][timestamp][student].roll;
-              total++;
+              total =
+                total +
+                (parseInt(this.attendance[subject][timestamp][student].noOfLect)
+                  ? parseInt(
+                      this.attendance[subject][timestamp][student].noOfLect
+                    )
+                  : 1);
               if (
                 this.attendance[subject][timestamp][student].status == "green"
               ) {
-                totalgreen++;
+                totalgreen =
+                  totalgreen +
+                  (parseInt(
+                    this.attendance[subject][timestamp][student].noOfLect
+                  )
+                    ? parseInt(
+                        this.attendance[subject][timestamp][student].noOfLect
+                      )
+                    : 1);
               }
               if (
                 this.attendance[subject][timestamp][student].status == "blue"
               ) {
-                totalblue = totalblue + 0.5;
+                totalblue =
+                  totalblue +
+                  (parseInt(
+                    this.attendance[subject][timestamp][student].noOfLect
+                  )
+                    ? parseInt(
+                        this.attendance[subject][timestamp][student].noOfLect
+                      ) / 2
+                    : 0.5);
               }
             }
             // console.log(this.attendance[subject][timestamp][student])
@@ -118,7 +190,7 @@ export default {
         id: clgid,
         roll: roll,
         name: name,
-        percentage: percentage.toFixed(2),
+        percentage: parseInt(percentage.toFixed(2)),
         attended: totalgreen + totalblue,
         total: total,
         subjects: this.calculateSubjects(clgid)
@@ -134,16 +206,38 @@ export default {
         for (var timestamp in this.attendance[subject]) {
           for (var student in this.attendance[subject][timestamp]) {
             if (this.attendance[subject][timestamp][student].id == clgid) {
-              total++;
+              total =
+                total +
+                (parseInt(this.attendance[subject][timestamp][student].noOfLect)
+                  ? parseInt(
+                      this.attendance[subject][timestamp][student].noOfLect
+                    )
+                  : 1);
               if (
                 this.attendance[subject][timestamp][student].status == "green"
               ) {
-                green++;
+                green =
+                  green +
+                  (parseInt(
+                    this.attendance[subject][timestamp][student].noOfLect
+                  )
+                    ? parseInt(
+                        this.attendance[subject][timestamp][student].noOfLect
+                      )
+                    : 1);
               }
               if (
                 this.attendance[subject][timestamp][student].status == "blue"
               ) {
-                blue = blue + 0.5;
+                blue =
+                  blue +
+                  (parseInt(
+                    this.attendance[subject][timestamp][student].noOfLect
+                  )
+                    ? parseInt(
+                        this.attendance[subject][timestamp][student].noOfLect
+                      ) / 2
+                    : 0.5);
               }
             }
           }
@@ -154,7 +248,7 @@ export default {
           subject: subject,
           total: total,
           attended: green + blue,
-          percentage: percentage
+          percentage: parseInt(percentage.toFixed(2))
         };
       }
       console.log(subjects);
@@ -165,7 +259,7 @@ export default {
       var percentage = [];
       firebase
         .database()
-        .ref("students/" + this.classes)
+        .ref("students/" + this.subject.stream)
         .once("value", snapshot => {
           snapshot.forEach(student => {
             stud.push({ id: student.val().id, name: student.val().name });
@@ -182,23 +276,34 @@ export default {
       var att = {};
       firebase
         .database()
-        .ref("attendance/" + this.classes + "/")
+        .ref("attendance/" + this.subject.stream + "/")
         .once("value", snapshot => {
           snapshot.forEach(subject => {
             att[subject.key] = subject.val();
-            // subject.forEach(timestamp => {
-            //   att[timestamp.key] = timestamp.val();
-            // });
           });
         })
         .then(() => {
           this.attendance = att;
+          this.calculate();
         });
     }
   },
   mounted() {
-    this.getAttendance();
-    this.calculate();
+    firebase
+      .database()
+      .ref("faculties/" + firebase.auth().currentUser.uid)
+      .once("value", snapshot => {
+        snapshot.forEach(batch => {
+          this.subjects.push({
+            text: batch.val().batch,
+            stream: batch.val().batch,
+            subject: batch.val().subject
+          });
+        });
+      })
+      .then(() => {
+        this.getAttendance();
+      });
   }
 };
 </script>

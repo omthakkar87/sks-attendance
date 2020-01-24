@@ -80,16 +80,16 @@ export default {
           for (var student in this.attendance[subject][timestamp]) {
             if (this.attendance[subject][timestamp][student].id == this.clgid) {
               var roll = this.attendance[subject][timestamp][student].roll;
-              total++;
+              total = total + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect):1);
               if (
                 this.attendance[subject][timestamp][student].status == "green"
               ) {
-                green++;
+                green = green + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect):1);
               }
               if (
                 this.attendance[subject][timestamp][student].status == "blue"
               ) {
-                blue = blue + 0.5;
+                blue = blue + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect)/2:0.5);
               }
             }
           }
@@ -103,7 +103,7 @@ export default {
             date: times,
             total: total,
             attended: green + blue,
-            percentage: percentage
+            percentage: percentage.toFixed(2)
           };
         }
       console.log(timestamps);
@@ -119,16 +119,16 @@ export default {
         for (var timestamp in this.attendance[subject]) {
           for (var student in this.attendance[subject][timestamp]) {
             if (this.attendance[subject][timestamp][student].id == this.clgid) {
-              total++;
+              total = total + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect):1);
               if (
                 this.attendance[subject][timestamp][student].status == "green"
               ) {
-                green++;
+                green = green + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect):1);
               }
               if (
                 this.attendance[subject][timestamp][student].status == "blue"
               ) {
-                blue = blue + 0.5;
+                blue = blue + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect)/2:0.5);
               }
             }
           }
@@ -139,7 +139,7 @@ export default {
           subject: subject,
           total: total,
           attended: green + blue,
-          percentage: percentage,
+          percentage: percentage.toFixed(2),
           timestamps: this.calculatePercentage(subject)
         });
       }

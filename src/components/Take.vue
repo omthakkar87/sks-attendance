@@ -46,8 +46,10 @@ export default {
                 noOfLect: this.noOfLect,
                 class: this.subject.stream,
                 timestamp: Date.now()
+              })
+              .then(() => {
+                this.$router.push("/Session/" + this.sessionid);
               });
-              this.$router.push("/Session/" + this.sessionid);
             return true;
           } else {
             console.log("INCREMENT");

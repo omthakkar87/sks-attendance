@@ -20,13 +20,12 @@
               <v-btn text @click="codeDialog = true">Enter Code</v-btn>
               <v-dialog v-model="codeDialog" max-width="320px">
                 <v-card>
-                  <v-card-text class="text-center">
+                  <v-card-text>
                     <v-card-title>Enter Session Code</v-card-title>
                   </v-card-text>
-                  <v-card-text class="text-xs-right">
+                  <v-card-text>
                     <v-form @submit.prevent="codeDialog=false; mark()">
                       <v-text-field
-                        autofocus
                         box
                         label="Session Code"
                         type="text"
@@ -84,8 +83,26 @@ export default {
     };
   },
   methods: {
+    checkcode() {
+      //query database for a session with sessionid
+      firebase
+        .database()
+        .ref("/sessions/" + this.code)
+        .once("value", snapshot => {
+          if (snapshot.val() == null) {
+            alert("Invalid Code Or Session Doesn't Exist")
+            console.log("checkcode -> INVALID CODE");
+            return false;
+          } else {
+            console.log("checkcode -> VALID CODE & SESSION EXIST");
+            return true;
+          }
+        });
+    },
     mark() {
-      this.$router.push("/Mark/" + this.code);
+      if (this.checkcode()) {
+        this.$router.push("/Mark/" + this.code);
+      }
     },
     studentreport() {
       this.$router.push("/StudentReport");

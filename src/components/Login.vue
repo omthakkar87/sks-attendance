@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+import firebase from "firebase";
 export default {
   data() {
     return {
@@ -79,7 +79,20 @@ export default {
     };
   },
   methods: {
-    forgotpassword() {},
+    forgotpassword() {
+      firebase
+        .auth()
+        .sendPasswordResetEmail(this.email)
+        .then(() => {
+          alert("Password Reset Link Sent To Your Email Address!!!");
+        })
+        .catch(function(error) {
+          // Handle Errors here.
+          alert(error.code + " : " + error.message);
+          this.loading = false;
+          this.disabled = false;
+        });
+    },
     login() {
       this.loading = true;
       this.disabled = true;

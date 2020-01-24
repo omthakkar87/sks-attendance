@@ -32,11 +32,10 @@ const convertArrayToObject = (array, key) => {
 export default {
   data() {
     return {
-      status: "yellow",
-      class: "TYBSCIT-A",
+      classes: "TYBSCIT-A",
       subject: "SIC",
-      sessions: [
-      ]
+      sessions: [],
+      noOfLect: null
     };
   },
   methods: {
@@ -46,10 +45,7 @@ export default {
       firebase
         .database()
         .ref(
-          "attendance/" +
-            this.class +
-            "/" + this.subject + "/" +
-            Date.now()
+          "attendance/" + this.classes + "/" + this.subject + "/" + Date.now()
         )
         .set(attendance)
         .then(() => {
@@ -64,7 +60,7 @@ export default {
           } else if (this.sessions[i].status == "green") {
             this.sessions[i].status = "red";
           } else {
-            this.sessions[i].status = "red";
+            this.sessions[i].status = "green";
           }
         }
       });
@@ -73,17 +69,29 @@ export default {
   mounted() {
     firebase
       .database()
-      .ref("students/" + this.class)
+      .ref("sessions/" + this.$route.params.sessionid + "/lecture/")
       .once("value", snapshot => {
-        snapshot.forEach(student => {
-          this.sessions.push({
-            roll: student.key,
-            id: student.val().id,
-            uid: student.val().uid,
-            status: "",
-            sessionid: this.$route.params.sessionid
+        console.log(snapshot.val());
+        this.classes = snapshot.val().class;
+        this.subject = snapshot.val().subject;
+        this.noOfLect = snapshot.val().noOfLect;
+      })
+      .then(() => {
+        firebase
+          .database()
+          .ref("students/" + this.classes)
+          .once("value", snapshot => {
+            snapshot.forEach(student => {
+              this.sessions.push({
+                roll: student.key,
+                id: student.val().id,
+                uid: student.val().uid,
+                status: "",
+                sessionid: this.$route.params.sessionid,
+                noOfLect: this.noOfLect
+              });
+            });
           });
-        });
       });
 
     firebase
@@ -94,14 +102,18 @@ export default {
           var result = this.sessions.find((obj, i) => {
             if (obj.id == student.key) {
               this.sessions[i].status = "blue";
-              this.sessions[i].gps = student.val().gps;
+              this.sessions[i].gps = student.val().gps
+                ? student.val().gps
+                : null;
             }
           });
           if (student.val().bt) {
             var result = this.sessions.find((obj, i) => {
               if (obj.id == student.key) {
                 this.sessions[i].status = "green";
-                this.sessions[i].bt = student.val().bt;
+                this.sessions[i].bt = student.val().bt
+                  ? student.val().bt
+                  : null;
               }
             });
           }

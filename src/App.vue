@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app>
-      <v-toolbar-title class="headline text-uppercase">
+      <v-toolbar-title @click="checkAuthRole" class="headline text-uppercase">
         <span>SKS</span>
         <span class="font-weight-light">Attendance</span>
       </v-toolbar-title>
@@ -13,7 +13,7 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item @click="editProfile">
+          <v-list-item v-if="role == 'student'" @click="editProfile">
             <v-list-item-title>{{"Edit Profile"}}</v-list-item-title>
           </v-list-item>
           <v-list-item @click="signOut">
@@ -41,6 +41,7 @@ export default {
   },
   data() {
     return {
+      role: "home"
     };
   },
   methods: {
@@ -51,6 +52,17 @@ export default {
     editProfile() {
       console.log("Edit Profile");
       this.$router.push("/StudentProfile");
+    },
+    checkAuthRole() {
+      if (this.role == "student") {
+        this.$router.push("/StudentHome");
+      } else if (this.role == "faculty") {
+        this.$router.push("/FacultyHome");
+      } else if (this.role == "admin") {
+        this.$router.push("/AdminHome");
+      } else {
+        this.$router.push("/Home");
+      }
     }
   },
   mounted() {
@@ -62,12 +74,16 @@ export default {
           .once("value", snapshot => {
             var userdata = snapshot.val();
             if (userdata.role == "student") {
+              this.role = "student";
               this.$router.push("/StudentHome");
             } else if (userdata.role == "faculty") {
+              this.role = "faculty";
               this.$router.push("/FacultyHome");
             } else if (userdata.role == "admin") {
+              this.role = "admin";
               this.$router.push("/AdminHome");
             } else {
+              this.role = "home";
               this.$router.push("/Home");
             }
           });

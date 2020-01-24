@@ -18,6 +18,13 @@
           <span>To Update ID Contact Admin</span>
         </v-tooltip>
         <v-text-field
+          v-model="name"
+          prepend-icon="mdi-numeric"
+          name="Name"
+          label="Name"
+          type="text"
+        ></v-text-field>
+        <v-text-field
           v-model="rollno"
           prepend-icon="mdi-numeric"
           name="RollNo"
@@ -69,9 +76,11 @@ export default {
       division: "",
       years: [],
       year: "",
+      name:"",
       oldcourse: "",
       olddivision: "",
       oldyear: "",
+      oldname: "",
       rollno: null,
       oldrollno: null,
       id: "",
@@ -129,12 +138,17 @@ export default {
                   )
                   .set({
                     id: this.id,
-                    uid: firebase.auth().currentUser.uid
+                    uid: firebase.auth().currentUser.uid,
+                    name: this.name
+                  }).then(()=>{
+                    alert("Successfully Updated!!!");
+                    this.$router.push("/")
                   });
                 this.oldyear = this.year;
                 this.oldcourse = this.course;
                 this.olddivision = this.division;
                 this.oldrollno = this.rollno;
+                this.oldname = this.name;
               });
           }
         });
@@ -189,6 +203,7 @@ export default {
               classes.forEach(rollno => {
                 if (rollno.val().id == this.id) {
                   this.rollno = rollno.key;
+                  this.name = rollno.val().name
                   this.oldrollno = rollno.key;
                   var year = classes.key.substring(0, 2);
                   var coursediv = classes.key.substring(2).split("-");

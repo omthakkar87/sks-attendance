@@ -24,7 +24,6 @@
     "core-js": "^3.4.4",
     "firebase": "^7.6.2",
     "geolocation-utils": "^1.2.2",
-    "moment": "^2.24.0",
     "register-service-worker": "^1.6.2",
     "roboto-fontface": "*",
     "vue": "^2.6.10",
