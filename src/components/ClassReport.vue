@@ -1,21 +1,21 @@
 <template>
-  <div class="ma-4">
-    <v-select
-      :items="subjects"
-      @change="getAttendance()"
-      class="px-5"
-      label="Select Class"
-      v-model="subject"
-      return-object
-    ></v-select>
-    <v-text-field
-      class="px-5"
-      max="100"
-      min="0"
-      v-mask="mask"
-      label="Defaulters %"
-      v-model="cutoff"
-    ></v-text-field>
+  <div class="ma-3 mt-5">
+    <v-row class="px-5">
+      <v-col>
+        <v-select
+          :items="subjects"
+          @change="getAttendance()"
+          class
+          label="Select Class"
+          v-model="subject"
+          return-object
+        ></v-select>
+      </v-col>
+      <v-col>
+        <v-text-field class max="100" min="0" v-mask="mask" label="Defaulters %" v-model="cutoff"></v-text-field>
+      </v-col>
+    </v-row>
+
     <h3 class="text-center pa-3">No. Of Lectures : {{total}}</h3>
     <v-data-table
       :single-expand="true"
@@ -31,7 +31,7 @@
     >
       <template v-slot:expanded-item="{item,headers}">
         <td :colspan="headers.length">
-          <v-card class="ma-3 pa-3" raised>
+          <v-card class="ma-4 pa-5" raised>
             <h3 class="text-center">{{item.name}}</h3>
             <v-simple-table dense>
               <template v-slot:default>
@@ -58,20 +58,6 @@
       </template>
     </v-data-table>
     <v-text-field v-model="cutoffValue" class="d-none"></v-text-field>
-    <!-- <v-container v-for="(subjects,ind) in attendance" :key="ind">
-      <h1 class="text-center">subject</h1>
-      <v-card v-for="(attend, i) in subjects" :key="i" class="ma-3">
-        <v-card-title>{{i}}</v-card-title>
-        <v-card-text>
-          <ul>
-            <li
-              v-for="(student,index) in attend"
-              :key="index"
-            >{{student.id + " - " + student.status}}</li>
-          </ul>
-        </v-card-text>
-      </v-card>
-    </!-->
   </div>
 </template>
 
@@ -105,8 +91,10 @@ export default {
   computed: {
     cutoffValue() {
       if (this.cutoff >= 100) {
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         return (this.cutoff = 100);
       } else if (this.cutoff <= 0) {
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         return (this.cutoff = 0);
       } else {
         return this.cutoff;
@@ -137,10 +125,6 @@ export default {
       var total = 0;
       var totalgreen = 0;
       var totalblue = 0;
-      var subtotal = 0;
-      var subtotalgreen = 0;
-      var subtotalblue = 0;
-      var roll;
       for (var subject in this.attendance) {
         for (var timestamp in this.attendance[subject]) {
           for (var student in this.attendance[subject][timestamp]) {
@@ -291,7 +275,7 @@ export default {
   mounted() {
     firebase
       .database()
-      .ref("faculties/" + firebase.auth().currentUser.uid)
+      .ref("faculties/" + firebase.auth().currentUser.uid + "/subjects")
       .once("value", snapshot => {
         snapshot.forEach(batch => {
           this.subjects.push({

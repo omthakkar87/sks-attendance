@@ -74,7 +74,7 @@ export default {
   mounted() {
     firebase
       .database()
-      .ref("faculties/" + firebase.auth().currentUser.uid)
+      .ref("faculties/" + firebase.auth().currentUser.uid + "/subjects")
       .once("value", snapshot => {
         snapshot.forEach(batch => {
           this.subjects.push({

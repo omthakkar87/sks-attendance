@@ -12,14 +12,6 @@
               <v-card-text>
                 <v-form @submit.prevent="signup">
                   <v-text-field
-                    v-model="name"
-                    prepend-icon="mdi-account"
-                    name="Name"
-                    :rules="[rules.required]"
-                    label="Name"
-                    type="text"
-                  ></v-text-field>
-                  <v-text-field
                     v-model="collegeid"
                     prepend-icon="mdi-clipboard-account"
                     name="CollegeID"
@@ -28,39 +20,6 @@
                     :rules="[rules.required]"
                     v-mask="mask"
                   ></v-text-field>
-                  <v-text-field
-                    v-model="rollno"
-                    prepend-icon="mdi-numeric"
-                    name="RollNo"
-                    label="Roll No."
-                    :rules="[rules.required]"
-                    type="text"
-                  ></v-text-field>
-                  <v-select
-                    :items="divisions"
-                    v-model="division"
-                    prepend-icon="mdi-alphabetical"
-                    name="Division"
-                    :rules="[rules.required]"
-                    label="Division"
-                  ></v-select>
-                  <v-select
-                    :items="courses"
-                    v-model="course"
-                    prepend-icon="mdi-book-multiple"
-                    name="Course"
-                    :rules="[rules.required]"
-                    label="Course"
-                  ></v-select>
-                  <v-select
-                    :items="years"
-                    v-model="year"
-                    prepend-icon="mdi-book-open"
-                    name="Year"
-                    :rules="[rules.required]"
-                    label="Year"
-                  ></v-select>
-
                   <v-text-field
                     v-model="email"
                     prepend-icon="mdi-email"
@@ -121,30 +80,10 @@ export default {
   data() {
     return {
       mask: "##########",
-      name: "",
       show1: false,
       show2: false,
       collegeid: null,
-      rollno: null,
       email: "",
-      courses: [
-        { text: "B. Sc. IT", value: "BSCIT" },
-        { text: "B. Sc. CS", value: "BSCCS" },
-        { text: "B. A.", value: "BA" }
-      ],
-      course: "",
-      divisions: [
-        { text: "A", value: "A" },
-        { text: "B", value: "B" },
-        { text: "C", value: "C" }
-      ],
-      division: "",
-      years: [
-        { text: "First Year (FY)", value: "FY" },
-        { text: "Second Year (SY)", value: "SY" },
-        { text: "Third Year (TY)", value: "TY" }
-      ],
-      year: "",
       disabled: false,
       loading: false,
       password: "",
@@ -172,55 +111,57 @@ export default {
         .auth()
         .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
         .then(() => {
-          // Existing and future Auth states are now persisted in the current
-          // session only. Closing the window would clear any existing state even
-          // if a user forgets to sign out.
-          // ...
-          // New sign-in will be persisted with session persistence.
           return firebase
             .auth()
             .createUserWithEmailAndPassword(this.email, this.password)
-            .catch(error => {
-              alert(error.code + " : " + error.message);
-              this.loading = false;
-              this.disabled = false;
-            })
-            .then(successs => {
+            .then(() => {
               firebase
                 .database()
                 .ref("users/" + firebase.auth().currentUser.uid)
                 .set({
-                  role: "student",
-                  id: this.collegeid
-                })
-                .then(() => {
-                  firebase
-                    .database()
-                    .ref(
-                      "students/" +
-                        this.year +
-                        this.course +
-                        "-" +
-                        this.division +
-                        "/" +
-                        this.rollno
-                    )
-                    .update({
-                      id: this.collegeid,
-                      name: this.name,
-                      uid: firebase.auth().currentUser.uid
-                    });
+                  id: this.collegeid,
+                  role: "student"
                 });
+              firebase
+                .database()
+                .ref("students")
+                .once("value", snapshot => {
+                  snapshot.forEach(classes => {
+                    classes.forEach(roll => {
+                      if (roll.val().id == this.collegeid) {
+                        firebase
+                          .database()
+                          .ref(
+                            "students/" + classes.key + "/" + roll.key + "/uid"
+                          )
+                          .set(firebase.auth().currentUser.uid)
+                          .then(() => {
+                            console.log("UID Set In Student Node");
+                          });
+                      }
+                    });
+                  });
+                });
+            })
+            .catch(error => {
+              console.log(error.log);
+              alert(error.message);
+              this.loading = false;
+              this.disabled = false;
+              console.log("create user with email & password error");
             });
         })
-        .catch(function(error) {
+        .catch(error => {
           // Handle Errors here.
-          alert(error.code + " : " + error.message);
+          console.log(error.log);
+          alert(error.message);
           this.loading = false;
           this.disabled = false;
+          console.log("setPersistence error");
         });
     }
-  }
+  },
+  mounted() {}
 };
 </script>
 

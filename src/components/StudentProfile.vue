@@ -23,6 +23,7 @@
           name="Name"
           label="Name"
           type="text"
+          disabled
         ></v-text-field>
         <v-text-field
           v-model="rollno"
@@ -32,34 +33,35 @@
           :error-messages="error"
           required
           type="text"
+          disabled
         ></v-text-field>
-        <v-select
+        <v-text-field
           :items="divisions"
           v-model="division"
           prepend-icon="mdi-alphabetical"
           name="Division"
           required
           label="Division"
-        ></v-select>
-        <v-select
+          disabled
+        ></v-text-field>
+        <v-text-field
           :items="courses"
           v-model="course"
           prepend-icon="mdi-book-multiple"
           name="Course"
           required
           label="Course"
-        ></v-select>
-        <v-select
+          disabled
+        ></v-text-field>
+        <v-text-field
           :items="years"
           v-model="year"
           prepend-icon="mdi-book-open"
           name="Year"
           required
           label="Year"
-        ></v-select>
-        <div class="text-center ma-5">
-          <v-btn @click="savechanges" :loading="loading" label="save" color="primary">SAVE CHANGES</v-btn>
-        </div>
+          disabled
+        ></v-text-field>
       </v-form>
     </v-container>
   </div>
@@ -70,124 +72,18 @@ import firebase from "firebase";
 export default {
   data() {
     return {
-      courses: [],
       course: "",
-      divisions: [],
       division: "",
-      years: [],
       year: "",
-      name:"",
-      oldcourse: "",
-      olddivision: "",
-      oldyear: "",
-      oldname: "",
+      name: "",
       rollno: null,
-      oldrollno: null,
       id: "",
       loading: false,
       error: null
     };
   },
-  methods: {
-    savechanges() {
-      firebase
-        .database()
-        .ref(
-          "students/" +
-            this.year +
-            this.course +
-            "-" +
-            this.division +
-            "/" +
-            this.rollno +
-            "/"
-        )
-        .once("value", snapshot => {
-          if (
-            snapshot.val() != null &&
-            snapshot.val().uid != firebase.auth().currentUser.uid
-          ) {
-            this.error = "Roll Number Already Exist Cannot Update!!!";
-            return true;
-          } else {
-            firebase
-              .database()
-              .ref(
-                "students/" +
-                  this.oldyear +
-                  this.oldcourse +
-                  "-" +
-                  this.olddivision +
-                  "/" +
-                  this.oldrollno +
-                  "/"
-              )
-              .remove()
-              .then(() => {
-                firebase
-                  .database()
-                  .ref(
-                    "students/" +
-                      this.year +
-                      this.course +
-                      "-" +
-                      this.division +
-                      "/" +
-                      this.rollno +
-                      "/"
-                  )
-                  .set({
-                    id: this.id,
-                    uid: firebase.auth().currentUser.uid,
-                    name: this.name
-                  }).then(()=>{
-                    alert("Successfully Updated!!!");
-                    this.$router.push("/")
-                  });
-                this.oldyear = this.year;
-                this.oldcourse = this.course;
-                this.olddivision = this.division;
-                this.oldrollno = this.rollno;
-                this.oldname = this.name;
-              });
-          }
-        });
-    }
-  },
+  methods: {},
   mounted() {
-    firebase
-      .database()
-      .ref("courses")
-      .once("value", snapshot => {
-        snapshot.forEach(course => {
-          this.courses.push({
-            text: course.val().text,
-            value: course.val().class
-          });
-        });
-      });
-    firebase
-      .database()
-      .ref("years")
-      .once("value", snapshot => {
-        snapshot.forEach(year => {
-          this.years.push({
-            text: year.val().text,
-            value: year.val().year
-          });
-        });
-      });
-    firebase
-      .database()
-      .ref("divisions")
-      .once("value", snapshot => {
-        snapshot.forEach(division => {
-          this.divisions.push({
-            text: division.val().text,
-            value: division.val().division
-          });
-        });
-      });
     firebase
       .database()
       .ref("users/" + firebase.auth().currentUser.uid)
@@ -203,16 +99,12 @@ export default {
               classes.forEach(rollno => {
                 if (rollno.val().id == this.id) {
                   this.rollno = rollno.key;
-                  this.name = rollno.val().name
-                  this.oldrollno = rollno.key;
+                  this.name = rollno.val().name;
                   var year = classes.key.substring(0, 2);
                   var coursediv = classes.key.substring(2).split("-");
                   this.year = year;
-                  this.oldyear = year;
                   this.course = coursediv[0];
                   this.division = coursediv[1];
-                  this.oldcourse = coursediv[0];
-                  this.olddivision = coursediv[1];
                 }
               });
             });

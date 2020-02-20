@@ -3,14 +3,18 @@ import VueRouter from 'vue-router'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
 import StudentProfile from '@/components/StudentProfile'
-import SignUp from '@/components/SignUp'
+import StudentSignUp from '@/components/StudentSignUp'
+import FacultySignUp from '@/components/FacultySignUp'
 import StudentHome from '@/components/StudentHome'
 import FacultyHome from '@/components/FacultyHome'
+import AdminHome from '@/components/AdminHome'
 import Mark from '@/components/Mark'
 import Take from '@/components/Take'
 import Session from '@/components/Session'
+import Edit from '@/components/Edit'
 import StudentReport from '@/components/StudentReport'
 import ClassReport from '@/components/ClassReport'
+import FacultyManage from '@/components/FacultyManage'
 
 Vue.use(VueRouter)
 
@@ -31,9 +35,14 @@ const routes = [
     component: StudentProfile
   },
   {
-    path: '/SignUp',
-    name: 'SignUp',
-    component: SignUp
+    path: '/StudentSignUp',
+    name: 'StudentSignUp',
+    component: StudentSignUp
+  },
+  {
+    path: '/FacultySignUp',
+    name: 'FacultySignUp',
+    component: FacultySignUp
   },
   {
     path: '/StudentHome',
@@ -44,6 +53,16 @@ const routes = [
     path: '/FacultyHome',
     name: 'FacultyHome',
     component: FacultyHome
+  },
+  {
+    path: '/FacultyManage',
+    name: 'FacultyManage',
+    component: FacultyManage
+  },
+  {
+    path: '/AdminHome',
+    name: 'AdminHome',
+    component: AdminHome
   },
   {
     path: '/Mark/:sessionid',
@@ -59,6 +78,11 @@ const routes = [
     path: '/Session/:sessionid',
     name: 'Session',
     component: Session
+  },
+  {
+    path: '/Edit/:edittype',
+    name: 'Edit',
+    component: Edit
   },
   {
     path: '/StudentReport',

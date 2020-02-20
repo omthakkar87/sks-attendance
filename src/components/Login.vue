@@ -34,11 +34,12 @@
                   <v-card-actions>
                     <div>
                       <a
+                        v-if="!forgotpass"
                         style="text-decoration:underline;"
                         @click="forgotpassword()"
                       >Forgot Password?</a>
                       <br />
-                      <router-link :to="{name:'SignUp'}">Create Account</router-link>
+                      <router-link :to="{name:'StudentSignUp'}">Create Account</router-link>
                     </div>
                     <v-spacer></v-spacer>
                     <v-btn
@@ -68,6 +69,7 @@ export default {
       disabled: false,
       loading: false,
       password: "",
+      forgotpass: false,
       passwordRules: [
         v => !!v || "Password is Required",
         v => v.length >= 8 || "Min 8 characters"
@@ -80,17 +82,21 @@ export default {
   },
   methods: {
     forgotpassword() {
+      this.forgotpass = true;
       firebase
         .auth()
         .sendPasswordResetEmail(this.email)
         .then(() => {
           alert("Password Reset Link Sent To Your Email Address!!!");
+          this.forgotpass = false;
         })
-        .catch(function(error) {
+        .catch(error => {
           // Handle Errors here.
-          alert(error.code + " : " + error.message);
-          this.loading = false;
-          this.disabled = false;
+          if (error.code == "auth/invalid-email") {
+            alert("Enter The Email Address To Reset Its Password");
+          }
+          // alert(error.code + " : " + error.message);
+          this.forgotpass = false;
         });
     },
     login() {

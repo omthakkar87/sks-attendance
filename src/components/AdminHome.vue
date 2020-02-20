@@ -8,10 +8,8 @@
               <v-flex xs12 class="text-center">
                 <v-card-title primary-title>
                   <div style="width:100%;">
-                    <div class="headline">Take Attendance</div>
-                    <div
-                      class="caption"
-                    >Start a Attendance Session By Pressing The Create Session Button Below</div>
+                    <div class="headline">Manage Faculty</div>
+                    <div class="caption">Create, Edit, Delete Faculty Accounts And Subjects</div>
                   </div>
                 </v-card-title>
               </v-flex>
@@ -19,7 +17,8 @@
             <v-divider></v-divider>
             <v-card-actions class="pa-2">
               <v-spacer></v-spacer>
-              <v-btn text :to="{name:'Take'}">Create Session</v-btn>
+              <v-btn text :to="{ name: 'FacultySignUp' }">Sign Up</v-btn>
+              <v-btn text :to="{ name: 'FacultyManage' }">Manage</v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
@@ -29,16 +28,19 @@
               <v-flex xs12 class="text-center">
                 <v-card-title primary-title>
                   <div style="width:100%;">
-                    <div class="headline">View Report</div>
-                    <div class="caption">Generate Class Attendance Report</div>
+                    <div class="headline">Manage Courses</div>
+                    <div class="caption">Create, Edit, Delete Course Related Parameters</div>
                   </div>
                 </v-card-title>
               </v-flex>
             </v-layout>
             <v-divider></v-divider>
-            <v-card-actions class="pa-2">
+            <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn text :to="{name:'ClassReport'}">Generate Report</v-btn>
+              <v-btn text @click="edit('courses')">Courses</v-btn>
+              <v-btn text @click="edit('divisions')">Divisions</v-btn>
+              <v-btn text @click="edit('years')">Years</v-btn>
+              <v-btn text @click="edit('subjects')">Subjects</v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
@@ -49,10 +51,15 @@
 
 <script>
 export default {
+  data() {
+    return {};
+  },
   methods: {
+    edit(edittype) {
+      this.$router.push("/Edit/" + edittype);
+    }
   }
 };
 </script>
 
-<style>
-</style>
+<style></style>

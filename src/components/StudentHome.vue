@@ -24,9 +24,9 @@
                     <v-card-title>Enter Session Code</v-card-title>
                   </v-card-text>
                   <v-card-text>
-                    <v-form @submit.prevent="codeDialog=false; mark()">
+                    <v-form @submit.prevent="codeDialog=false; checkcode()">
                       <v-text-field
-                        box
+                        filled
                         label="Session Code"
                         type="text"
                         v-model="code"
@@ -37,7 +37,7 @@
                   <v-divider></v-divider>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" text @click="codeDialog=false; mark()">Start</v-btn>
+                    <v-btn color="primary" text @click="codeDialog=false; checkcode()">Start</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -90,19 +90,14 @@ export default {
         .ref("/sessions/" + this.code)
         .once("value", snapshot => {
           if (snapshot.val() == null) {
-            alert("Invalid Code Or Session Doesn't Exist")
+            alert("Invalid Code Or Session Doesn't Exist");
             console.log("checkcode -> INVALID CODE");
             return false;
           } else {
             console.log("checkcode -> VALID CODE & SESSION EXIST");
-            return true;
+            this.$router.push("/Mark/" + this.code);
           }
         });
-    },
-    mark() {
-      if (this.checkcode()) {
-        this.$router.push("/Mark/" + this.code);
-      }
     },
     studentreport() {
       this.$router.push("/StudentReport");

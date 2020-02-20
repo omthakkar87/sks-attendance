@@ -1,7 +1,7 @@
 <template>
   <div class="mark text-center">
     <v-container pt-5>
-      <h1>Waiting For Server</h1>
+      <h1>Waiting For Peers</h1>
       <h3>To Mark Your Attendance</h3>
       <table border="3">
         <tr v-for="(btdevice,index) in btdevices" :key="index">
@@ -25,9 +25,9 @@ export default {
         inside: ""
       },
       btdevices: [],
-      id: ""
     };
   },
+  props:["clgid"],
   methods: {
     checkcode() {
       //query database for a session with sessionid
@@ -67,7 +67,7 @@ export default {
               "sessions/" +
                 this.$route.params.sessionid +
                 "/attendance/" +
-                this.id
+                this.clgid
             )
             .update({
               gps: this.gps
@@ -86,7 +86,7 @@ export default {
           "sessions/" +
             this.$route.params.sessionid +
             "/attendance/" +
-            this.id +
+            this.clgid +
             "/bt"
         )
         .on("value", snapshot => {
@@ -102,7 +102,7 @@ export default {
     },
     initandscanbt() {
       var devices = [];
-      bluetoothSerial.setName("SKS" + this.id);
+      bluetoothSerial.setName("SKS" + this.clgid);
       bluetoothSerial.setDiscoverable(0);
       //added a listener for my bt.
       this.getgps();
@@ -122,6 +122,7 @@ export default {
           console.log(devices);
           devices.forEach(device => {
             if (device.substring(0, 3) == "SKS") {
+              this.sksdevice.push(device.substring(3))
               firebase
                 .database()
                 .ref(
@@ -148,13 +149,14 @@ export default {
     }
   },
   mounted() {
-    firebase
-      .database()
-      .ref("users/" + firebase.auth().currentUser.uid)
-      .once("value", snapshot => {
-        this.id = snapshot.val().id;
-        this.checkcode();
-      });
+    // firebase
+    //   .database()
+    //   .ref("users/" + firebase.auth().currentUser.uid)
+    //   .once("value", snapshot => {
+    //     this.clgid = snapshot.val().id;
+    //     this.checkcode();
+    //   });
+    this.checkcode()
   }
 };
 </script>

@@ -6,7 +6,9 @@ module.exports = {
   ],
 
   publicPath: '',
-
+  devServer:{
+    host:'0.0.0.0'
+  },
   pluginOptions: {
     cordovaPath: 'src-cordova'
   }

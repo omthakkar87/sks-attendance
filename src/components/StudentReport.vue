@@ -53,10 +53,8 @@ export default {
       expanded: [],
       clgid: null,
       name: null,
-      subject: "BI",
       classes: "TYBSCIT-A",
       dataitems: [],
-      timestamps: [],
       headers: [
         { text: "Subject", value: "subject" },
         { text: "Attd", value: "attended" },
@@ -70,7 +68,6 @@ export default {
       this.expanded = item === this.expanded[0] ? [] : [item];
     },
     calculatePercentage(subject) {
-      var roll;
       var timestamps = {};
         for (var timestamp in this.attendance[subject]) {
           var green = 0;
@@ -79,7 +76,7 @@ export default {
           var total = 0;
           for (var student in this.attendance[subject][timestamp]) {
             if (this.attendance[subject][timestamp][student].id == this.clgid) {
-              var roll = this.attendance[subject][timestamp][student].roll;
+              
               total = total + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect):1);
               if (
                 this.attendance[subject][timestamp][student].status == "green"
@@ -97,7 +94,7 @@ export default {
         //   console.log(subject, green, blue, total, percentage);
           var ts = new Date(parseInt(timestamp))
           var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-          console.log(ts.getDate().toString() + " " + months[ts.getMonth()] + ", " + ts.getFullYear().toString())
+          // console.log(ts.getDate().toString() + " " + months[ts.getMonth()] + ", " + ts.getFullYear().toString())
           var times = ts.getDate().toString() + " " + months[ts.getMonth()] + ", " + ts.getFullYear().toString()
           timestamps[timestamp] = {
             date: times,
@@ -106,7 +103,7 @@ export default {
             percentage: percentage.toFixed(2)
           };
         }
-      console.log(timestamps);
+      // console.log(timestamps);
       return timestamps;
     },
     calculateSubjects() {
@@ -134,7 +131,7 @@ export default {
           }
         }
         percentage = ((green + blue) / total) * 100;
-        console.log(subject, green, blue, total, percentage);
+        // console.log(subject, green, blue, total, percentage);
         subjects.push({
           subject: subject,
           total: total,
@@ -150,7 +147,7 @@ export default {
           p = (a/t)*100
       }
       this.total = p.toFixed(2);
-      console.log(subjects);
+      // console.log(subjects);
       return subjects;
     },
     getAttendance() {
@@ -178,7 +175,19 @@ export default {
         this.clgid = snapshot.val().id;
       })
       .then(() => {
-        this.getAttendance();
+        firebase.database().ref("students").once('value',snapshot=>{
+          // console.log(snapshot.val())
+          snapshot.forEach(course=>{
+            course.forEach(rollno=>{
+              if(rollno.val().id == this.clgid){
+                this.classes = course.key
+                this.name = rollno.val().name
+              }
+            })
+          })
+        }).then(()=>{
+          this.getAttendance()
+        })
       });
   }
 };

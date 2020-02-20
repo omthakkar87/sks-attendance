@@ -1,22 +1,33 @@
 <template>
   <v-app>
-    <v-app-bar app>
+    <v-app-bar app color="primary">
       <v-toolbar-title @click="checkAuthRole" class="headline text-uppercase">
-        <span>SKS</span>
+        <span class="font-weight-medium">SKS</span>
         <span class="font-weight-light">Attendance</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-menu offset-y>
         <template v-slot:activator="{ on }">
-          <v-btn icon text v-on="on">
-            <v-icon>mdi-account-circle</v-icon>
-          </v-btn>
+          <v-avatar color="grey darken-2" v-on="on" size="36">
+            <v-icon v-if="(role == 'home')">mdi-account-circle</v-icon>
+
+            <img
+              v-if="(role != 'home')"
+              :src="'https://myaccount.somaiya.edu/Images/Id/' + clgid + '.jpg'"
+            />
+          </v-avatar>
         </template>
         <v-list>
-          <v-list-item v-if="role == 'student'" @click="editProfile">
-            <v-list-item-title>{{"Edit Profile"}}</v-list-item-title>
+          <v-list-item v-if="role == 'student'" @click="viewProfile">
+            <v-list-item-actions>
+              <v-icon>mdi-account</v-icon>
+            </v-list-item-actions>
+            <v-list-item-title>{{"View Profile"}}</v-list-item-title>
           </v-list-item>
           <v-list-item @click="signOut">
+            <v-list-item-actions>
+              <v-icon>mdi-exit-to-app</v-icon>
+            </v-list-item-actions>
             <v-list-item-title>{{"Sign Out"}}</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -24,33 +35,29 @@
     </v-app-bar>
 
     <v-content>
-      <router-view></router-view>
+      <router-view :clgid="clgid"></router-view>
     </v-content>
   </v-app>
 </template>
 
 <script>
 import firebase from "firebase";
-import Home from "./components/Home";
-import Login from "./components/Login";
 export default {
   name: "App",
-  components: {
-    Home,
-    Login
-  },
   data() {
     return {
-      role: "home"
+      role: "home",
+      clgid: 0
     };
   },
   methods: {
     signOut() {
       firebase.auth().signOut();
       console.log("Sign Out");
+      this.role = "home";
     },
-    editProfile() {
-      console.log("Edit Profile");
+    viewProfile() {
+      console.log("View Profile");
       this.$router.push("/StudentProfile");
     },
     checkAuthRole() {
@@ -73,6 +80,7 @@ export default {
           .ref("users/" + user.uid)
           .once("value", snapshot => {
             var userdata = snapshot.val();
+            this.clgid = userdata.id;
             if (userdata.role == "student") {
               this.role = "student";
               this.$router.push("/StudentHome");
@@ -89,8 +97,6 @@ export default {
           });
       } else {
         this.$router.push("/Login");
-        // User is signed out.
-        // ...
       }
     });
   }

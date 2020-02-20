@@ -53,7 +53,7 @@ export default {
         });
     },
     mark(roll) {
-      var filter = this.sessions.find((item, i) => {
+      this.sessions.find((item, i) => {
         if (item.roll == roll) {
           if (this.sessions[i].status == "red") {
             this.sessions[i].status = "green";
@@ -99,7 +99,7 @@ export default {
       .ref("sessions/" + this.$route.params.sessionid + "/attendance/")
       .on("value", snapshot => {
         snapshot.forEach(student => {
-          var result = this.sessions.find((obj, i) => {
+          this.sessions.find((obj, i) => {
             if (obj.id == student.key) {
               this.sessions[i].status = "blue";
               this.sessions[i].gps = student.val().gps
@@ -108,7 +108,7 @@ export default {
             }
           });
           if (student.val().bt) {
-            var result = this.sessions.find((obj, i) => {
+            this.sessions.find((obj, i) => {
               if (obj.id == student.key) {
                 this.sessions[i].status = "green";
                 this.sessions[i].bt = student.val().bt
