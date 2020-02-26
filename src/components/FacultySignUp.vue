@@ -93,6 +93,17 @@
                     :rules="[rules.required]"
                     @change="selectedCourseSubjects"
                   ></v-select>
+
+                  <v-select
+                    :items="semesters"
+                    v-model="semester"
+                    name="Semester"
+                    prepend-icon="mdi-book-open"
+                    label="Semester"
+                    id="Semester"
+                    :rules="[rules.required]"
+                    @change="selectedCourseSubjects"
+                  ></v-select>
                   <v-select
                     :items="divisions"
                     v-model="division"
@@ -124,12 +135,18 @@
                         <tr>
                           <th class="text-center">Course</th>
                           <th class="text-center">Subject</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr v-for="(addedSub,index) in addedSubs" :key="index">
                           <td class="text-center">{{addedSub.batch}}</td>
                           <td class="text-center">{{addedSub.subject}}</td>
+                          <td>
+                            <v-btn small text fab @click="RemoveSubject(addedSub,index)">
+                              <v-icon small>mdi-delete</v-icon>
+                            </v-btn>
+                          </td>
                         </tr>
                       </tbody>
                     </template>
@@ -202,6 +219,12 @@ export default {
         { text: "Third Year (TY)", value: "TY" }
       ],
       year: "",
+      semesters: [
+        { text: "First Year (FY)", value: "FY" },
+        { text: "Second Year (SY)", value: "SY" },
+        { text: "Third Year (TY)", value: "TY" }
+      ],
+      semester: "",
       subjects: [
         { text: "Business Intelligence", value: "BI" },
         { text: "IT Service Management", value: "ITSM" },
@@ -215,7 +238,7 @@ export default {
       password2: "",
       rules: {
         required: value => !!value || "Required.",
-        counter: value => value.length >= 8 || "Min 8 characters",
+        counter: value => value.length >= 7 || "Min 8 characters",
         email: value => {
           const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
           return pattern.test(value) || "Invalid e-mail.";
@@ -230,34 +253,68 @@ export default {
   },
   methods: {
     selectedCourseSubjects() {
+      var flag2 = false;
+      for (var yr in this.years) {
+        if (this.year == this.years[yr].value) {
+          this.semesters = this.years[yr].semesters;
+          flag2 = true;
+        }
+      }
+      if (!flag2) {
+        this.semesters = [];
+      }
+      var flag3 = false;
+      for (var course in this.courses) {
+        if (this.course == this.courses[course].value) {
+          this.divisions = this.courses[course].divisions;
+          flag3 = true;
+        }
+      }
+      if (!flag3) {
+        this.divisions = [];
+      }
+      this.subject = "";
+      this.subjects = [];
+      var flag = false;
       this.courses.forEach((course, i) => {
-        if (this.course == course.value) {
-          if (
-            this.courses[i].subjects &&
-            this.courses[i].subjects[this.year.value]
-          ) {
-            for (var yr in this.courses[i].subjects) {
-              if (this.year == yr) {
-                console.log(this.courses[i].subjects[yr]);
-                if (this.courses[i].subjects[yr]) {
-                  this.subjects = this.courses[i].subjects[yr];
-                } else {
-                  this.subjects = [];
+        if (this.course && this.course == course.value) {
+          for (var year in course.subjects) {
+            if (this.year && this.year == year) {
+              if (this.courses[i].subjects) {
+                for (var sem in course.subjects[year]) {
+                  if (this.semester == sem) {
+                    this.subjects = course.subjects[this.year][this.semester];
+                    flag = true;
+                  }
                 }
-                this.subject = {};
               }
             }
-          } else {
-            this.subjects = [];
           }
         }
       });
+      if (!flag) {
+        this.subjects = [];
+      }
+    },
+    RemoveSubject(item, index) {
+      this.addedSubs.splice(index, 1);
     },
     addSubjects() {
-      if (this.year && this.course && this.division && this.subject) {
+      if (
+        this.year &&
+        this.course &&
+        this.division &&
+        this.subject &&
+        this.semester
+      ) {
         var course = this.year + this.course + "-" + this.division;
         var subject = this.subject;
-        this.addedSubs.push({ batch: course, subject: subject });
+        var semester = this.semester;
+        this.addedSubs.push({
+          batch: course,
+          semester: semester,
+          subject: subject
+        });
         this.addedSubs = Array.from(
           new Set(this.addedSubs.map(JSON.stringify))
         ).map(JSON.parse);
@@ -271,8 +328,7 @@ export default {
       secondFb
         .auth()
         .createUserWithEmailAndPassword(this.email, this.password)
-        .then(user => {
-          console.log(user);
+        .then(() => {
           this.steps = 2;
           this.disabled = false;
           this.loading = false;
@@ -301,7 +357,6 @@ export default {
               role: "faculty"
             })
             .then(() => {
-              console.log("Ho gaya!!!");
               this.signoutFaculty();
               this.$router.push("/");
             });
@@ -314,21 +369,12 @@ export default {
       .ref("courses/")
       .once("value", snapshot => {
         this.courses = snapshot.val();
-        console.log(snapshot.val());
-      });
-    firebase
-      .database()
-      .ref("divisions/")
-      .once("value", snapshot => {
-        this.divisions = snapshot.val();
-        console.log(snapshot.val());
       });
     firebase
       .database()
       .ref("years/")
       .once("value", snapshot => {
         this.years = snapshot.val();
-        console.log(snapshot.val());
       });
   }
 };

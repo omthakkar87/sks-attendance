@@ -8,6 +8,11 @@
           <th>{{index}}) {{btdevice}}</th>
         </tr>
       </table>
+      <table border="3">
+        <tr v-for="(btdevice,index) in sksdevice" :key="index">
+          <th>{{index}}) {{btdevice}}</th>
+        </tr>
+      </table>
     </v-container>
   </div>
 </template>
@@ -24,6 +29,7 @@ export default {
         accuracy: "",
         inside: ""
       },
+      sksdevice:[],
       btdevices: [],
     };
   },
@@ -67,11 +73,9 @@ export default {
               "sessions/" +
                 this.$route.params.sessionid +
                 "/attendance/" +
-                this.clgid
+                this.clgid + "/gps"
             )
-            .update({
-              gps: this.gps
-            });
+            .set(this.gps);
         },
         error => {
           alert(error.code + " : " + error.message);
@@ -149,13 +153,6 @@ export default {
     }
   },
   mounted() {
-    // firebase
-    //   .database()
-    //   .ref("users/" + firebase.auth().currentUser.uid)
-    //   .once("value", snapshot => {
-    //     this.clgid = snapshot.val().id;
-    //     this.checkcode();
-    //   });
     this.checkcode()
   }
 };

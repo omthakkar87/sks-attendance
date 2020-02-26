@@ -69,33 +69,87 @@ export default {
     },
     calculatePercentage(subject) {
       var timestamps = {};
-        for (var timestamp in this.attendance[subject]) {
+      for (var semester in this.attendance) {
+        for (var timestamp in this.attendance[semester][subject]) {
           var green = 0;
           var blue = 0;
           var percentage = 0;
           var total = 0;
-          for (var student in this.attendance[subject][timestamp]) {
-            if (this.attendance[subject][timestamp][student].id == this.clgid) {
-              
-              total = total + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect):1);
+          for (var student in this.attendance[semester][subject][timestamp]) {
+            if (
+              this.attendance[semester][subject][timestamp][student].id ==
+              this.clgid
+            ) {
+              total =
+                total +
+                (parseInt(
+                  this.attendance[semester][subject][timestamp][student]
+                    .noOfLect
+                )
+                  ? parseInt(
+                      this.attendance[semester][subject][timestamp][student]
+                        .noOfLect
+                    )
+                  : 1);
               if (
-                this.attendance[subject][timestamp][student].status == "green"
+                this.attendance[semester][subject][timestamp][student].status ==
+                "green"
               ) {
-                green = green + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect):1);
+                green =
+                  green +
+                  (parseInt(
+                    this.attendance[semester][subject][timestamp][student]
+                      .noOfLect
+                  )
+                    ? parseInt(
+                        this.attendance[semester][subject][timestamp][student]
+                          .noOfLect
+                      )
+                    : 1);
               }
               if (
-                this.attendance[subject][timestamp][student].status == "blue"
+                this.attendance[semester][subject][timestamp][student].status ==
+                "blue"
               ) {
-                blue = blue + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect)/2:0.5);
+                blue =
+                  blue +
+                  (parseInt(
+                    this.attendance[semester][subject][timestamp][student]
+                      .noOfLect
+                  )
+                    ? parseInt(
+                        this.attendance[semester][subject][timestamp][student]
+                          .noOfLect
+                      ) / 2
+                    : 0.5);
               }
             }
           }
+
           percentage = ((green + blue) / total) * 100;
-        //   console.log(subject, green, blue, total, percentage);
-          var ts = new Date(parseInt(timestamp))
-          var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+          //   console.log(subject, green, blue, total, percentage);
+          var ts = new Date(parseInt(timestamp));
+          var months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+          ];
           // console.log(ts.getDate().toString() + " " + months[ts.getMonth()] + ", " + ts.getFullYear().toString())
-          var times = ts.getDate().toString() + " " + months[ts.getMonth()] + ", " + ts.getFullYear().toString()
+          var times =
+            ts.getDate().toString() +
+            " " +
+            months[ts.getMonth()] +
+            ", " +
+            ts.getFullYear().toString();
           timestamps[timestamp] = {
             date: times,
             total: total,
@@ -103,50 +157,91 @@ export default {
             percentage: percentage.toFixed(2)
           };
         }
-      // console.log(timestamps);
-      return timestamps;
+        // console.log(timestamps);
+        return timestamps;
+      }
     },
     calculateSubjects() {
       var subjects = [];
-      for (var subject in this.attendance) {
-        var green = 0;
-        var blue = 0;
-        var percentage = 0;
-        var total = 0;
-        for (var timestamp in this.attendance[subject]) {
-          for (var student in this.attendance[subject][timestamp]) {
-            if (this.attendance[subject][timestamp][student].id == this.clgid) {
-              total = total + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect):1);
+      for (var semester in this.attendance) {
+        for (var subject in this.attendance[semester]) {
+          var green = 0;
+          var blue = 0;
+          var percentage = 0;
+          var total = 0;
+          for (var timestamp in this.attendance[semester][subject]) {
+            for (var student in this.attendance[semester][subject][timestamp]) {
               if (
-                this.attendance[subject][timestamp][student].status == "green"
+                this.attendance[semester][subject][timestamp][student].id ==
+                this.clgid
               ) {
-                green = green + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect):1);
-              }
-              if (
-                this.attendance[subject][timestamp][student].status == "blue"
-              ) {
-                blue = blue + (parseInt(this.attendance[subject][timestamp][student].noOfLect)?parseInt(this.attendance[subject][timestamp][student].noOfLect)/2:0.5);
+                total =
+                  total +
+                  (parseInt(
+                    this.attendance[semester][subject][timestamp][student]
+                      .noOfLect
+                  )
+                    ? parseInt(
+                        this.attendance[semester][subject][timestamp][student]
+                          .noOfLect
+                      )
+                    : 1);
+                if (
+                  this.attendance[semester][subject][timestamp][student]
+                    .status == "green"
+                ) {
+                  green =
+                    green +
+                    (parseInt(
+                      this.attendance[semester][subject][timestamp][student]
+                        .noOfLect
+                    )
+                      ? parseInt(
+                          this.attendance[semester][subject][timestamp][student]
+                            .noOfLect
+                        )
+                      : 1);
+                }
+                if (
+                  this.attendance[semester][subject][timestamp][student]
+                    .status == "blue"
+                ) {
+                  blue =
+                    blue +
+                    (parseInt(
+                      this.attendance[semester][subject][timestamp][student]
+                        .noOfLect
+                    )
+                      ? parseInt(
+                          this.attendance[semester][subject][timestamp][student]
+                            .noOfLect
+                        ) / 2
+                      : 0.5);
+                }
               }
             }
           }
+          percentage = ((green + blue) / total) * 100;
+          // console.log(subject, green, blue, total, percentage);
+          subjects.push({
+            subject: subject,
+            total: total,
+            attended: green + blue,
+            percentage: percentage.toFixed(2),
+            timestamps: this.calculatePercentage(subject)
+          });
         }
-        percentage = ((green + blue) / total) * 100;
-        // console.log(subject, green, blue, total, percentage);
-        subjects.push({
-          subject: subject,
-          total: total,
-          attended: green + blue,
-          percentage: percentage.toFixed(2),
-          timestamps: this.calculatePercentage(subject)
-        });
-      }
-      var t=0,a=0,p=0;
-      for(var i in subjects){
+        var t = 0,
+          a = 0,
+          p = 0;
+        for (var i in subjects) {
           t = t + subjects[i].total;
           a = a + subjects[i].attended;
-          p = (a/t)*100
+          p = (a / t) * 100;
+        }
+        this.total = p.toFixed(2);
       }
-      this.total = p.toFixed(2);
+
       // console.log(subjects);
       return subjects;
     },
@@ -156,8 +251,8 @@ export default {
         .database()
         .ref("attendance/" + this.classes + "/")
         .once("value", snapshot => {
-          snapshot.forEach(subject => {
-            att[subject.key] = subject.val();
+          snapshot.forEach(semester => {
+            att[semester.key] = semester.val();
           });
         })
         .then(() => {
@@ -175,19 +270,23 @@ export default {
         this.clgid = snapshot.val().id;
       })
       .then(() => {
-        firebase.database().ref("students").once('value',snapshot=>{
-          // console.log(snapshot.val())
-          snapshot.forEach(course=>{
-            course.forEach(rollno=>{
-              if(rollno.val().id == this.clgid){
-                this.classes = course.key
-                this.name = rollno.val().name
-              }
-            })
+        firebase
+          .database()
+          .ref("students")
+          .once("value", snapshot => {
+            // console.log(snapshot.val())
+            snapshot.forEach(course => {
+              course.forEach(rollno => {
+                if (rollno.val().id == this.clgid) {
+                  this.classes = course.key;
+                  this.name = rollno.val().name;
+                }
+              });
+            });
           })
-        }).then(()=>{
-          this.getAttendance()
-        })
+          .then(() => {
+            this.getAttendance();
+          });
       });
   }
 };

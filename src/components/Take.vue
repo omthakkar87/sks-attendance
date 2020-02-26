@@ -45,6 +45,7 @@ export default {
                 subject: this.subject.subject,
                 noOfLect: this.noOfLect,
                 class: this.subject.stream,
+                semester: this.subject.semester,
                 timestamp: Date.now()
               })
               .then(() => {
@@ -80,7 +81,8 @@ export default {
           this.subjects.push({
             text: batch.val().batch + " (" + batch.val().subject + ")",
             stream: batch.val().batch,
-            subject: batch.val().subject
+            subject: batch.val().subject,
+            semester: batch.val().semester
           });
         });
       });

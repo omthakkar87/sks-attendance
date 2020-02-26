@@ -19,16 +19,16 @@
         </template>
         <v-list>
           <v-list-item v-if="role == 'student'" @click="viewProfile">
-            <v-list-item-actions>
-              <v-icon>mdi-account</v-icon>
-            </v-list-item-actions>
             <v-list-item-title>{{"View Profile"}}</v-list-item-title>
+            <v-list-item-icon>
+              <v-icon>mdi-account</v-icon>
+            </v-list-item-icon>
           </v-list-item>
           <v-list-item @click="signOut">
-            <v-list-item-actions>
-              <v-icon>mdi-exit-to-app</v-icon>
-            </v-list-item-actions>
             <v-list-item-title>{{"Sign Out"}}</v-list-item-title>
+            <v-list-item-icon>
+              <v-icon>mdi-exit-to-app</v-icon>
+            </v-list-item-icon>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -47,7 +47,7 @@ export default {
   data() {
     return {
       role: "home",
-      clgid: 0
+      clgid: 0,
     };
   },
   methods: {
@@ -68,7 +68,7 @@ export default {
       } else if (this.role == "admin") {
         this.$router.push("/AdminHome");
       } else {
-        this.$router.push("/Home");
+        this.$router.push("/");
       }
     }
   },
@@ -92,7 +92,7 @@ export default {
               this.$router.push("/AdminHome");
             } else {
               this.role = "home";
-              this.$router.push("/Home");
+              this.$router.push("/");
             }
           });
       } else {

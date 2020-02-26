@@ -3,11 +3,35 @@
     <v-row class="px-5">
       <v-col>
         <v-select
-          :items="subjects"
+          :items="courses"
           @change="getAttendance()"
           class
-          label="Select Class"
-          v-model="subject"
+          label="Select Course"
+          v-model="course"
+          return-object
+        ></v-select>
+        <v-select
+          :items="years"
+          @change="getAttendance()"
+          class
+          label="Select Year"
+          v-model="year"
+          return-object
+        ></v-select>
+        <v-select
+          :items="semesters"
+          @change="getAttendance()"
+          class
+          label="Select Semester"
+          v-model="semester"
+          return-object
+        ></v-select>
+        <v-select
+          :items="divisions"
+          @change="getAttendance()"
+          class
+          label="Select Division"
+          v-model="division"
           return-object
         ></v-select>
       </v-col>
@@ -20,7 +44,7 @@
     <v-data-table
       :single-expand="true"
       :expanded.sync="expanded"
-      item-key="roll"
+      item-key="name"
       class="mt-3 pt-3"
       @click:row="expandRow"
       hide-default-footer
@@ -71,14 +95,24 @@ export default {
   data() {
     return {
       attendance: {},
+      attends:{},
+      students: {},
+      courses: [],
+      years: [],
+      semesters: [],
+      divisions: [],
+      subjects: [],
+      course: {},
+      year: {},
+      semester: {},
+      division: {},
+      subject: {},
       mask: "###",
       total: 0,
       expanded: [],
       cutoff: 100,
-      subject: "BI",
       classes: "TYBSCIT-A",
-      dataitems: [],
-      subjects: [],
+      items: [],
       headers: [
         { text: "R.No.", value: "roll" },
         { text: "Student Name", value: "name" },
@@ -89,6 +123,9 @@ export default {
     };
   },
   computed: {
+    yearCourseDiv() {
+      return this.year.value + this.course.value + "-" + this.division.value;
+    },
     cutoffValue() {
       if (this.cutoff >= 100) {
         // eslint-disable-next-line vue/no-side-effects-in-computed-properties
@@ -102,12 +139,12 @@ export default {
     },
     getDefaulters() {
       if (this.cutoff == null) {
-        let filteredDefaulters = this.dataitems.filter(student => {
+        let filteredDefaulters = this.items.filter(student => {
           return student.percentage < 100;
         });
         return filteredDefaulters;
       } else {
-        let filteredDefaulters = this.dataitems.filter(student => {
+        let filteredDefaulters = this.items.filter(student => {
           return student.percentage < this.cutoff;
         });
         return filteredDefaulters;
@@ -180,7 +217,6 @@ export default {
                       : 0.5);
                 }
               }
-              // console.log(this.attendance[semester][subject][timestamp][student])
             }
           }
         }
@@ -207,108 +243,139 @@ export default {
           var total = 0;
           for (var timestamp in this.attendance[semester][subject]) {
             for (var student in this.attendance[semester][subject][timestamp]) {
-              if (this.attendance[semester][subject][timestamp][student].id == clgid) {
+              if (
+                this.attendance[semester][subject][timestamp][student].id ==
+                clgid
+              ) {
                 total =
                   total +
                   (parseInt(
-                    this.attendance[semester][subject][timestamp][student].noOfLect
+                    this.attendance[semester][subject][timestamp][student]
+                      .noOfLect
                   )
                     ? parseInt(
-                        this.attendance[semester][subject][timestamp][student].noOfLect
+                        this.attendance[semester][subject][timestamp][student]
+                          .noOfLect
                       )
                     : 1);
                 if (
-                  this.attendance[semester][subject][timestamp][student].status == "green"
+                  this.attendance[semester][subject][timestamp][student]
+                    .status == "green"
                 ) {
                   green =
                     green +
                     (parseInt(
-                      this.attendance[semester][subject][timestamp][student].noOfLect
+                      this.attendance[semester][subject][timestamp][student]
+                        .noOfLect
                     )
                       ? parseInt(
-                          this.attendance[semester][subject][timestamp][student].noOfLect
+                          this.attendance[semester][subject][timestamp][student]
+                            .noOfLect
                         )
                       : 1);
                 }
                 if (
-                  this.attendance[semester][subject][timestamp][student].status == "blue"
+                  this.attendance[semester][subject][timestamp][student]
+                    .status == "blue"
                 ) {
                   blue =
                     blue +
                     (parseInt(
-                      this.attendance[semester][subject][timestamp][student].noOfLect
+                      this.attendance[semester][subject][timestamp][student]
+                        .noOfLect
                     )
                       ? parseInt(
-                          this.attendance[semester][subject][timestamp][student].noOfLect
+                          this.attendance[semester][subject][timestamp][student]
+                            .noOfLect
                         ) / 2
                       : 0.5);
                 }
               }
             }
-          }percentage = ((green + blue) / total) * 100;
-        console.log(subject, green, blue, total, percentage);
-        subjects[subject] = {
-          subject: subject,
-          total: total,
-          attended: green + blue,
-          percentage: parseInt(percentage.toFixed(2))
-        };
+          }
+          percentage = ((green + blue) / total) * 100;
+          console.log(subject, green, blue, total, percentage);
+          subjects[subject] = {
+            subject: subject,
+            total: total,
+            attended: green + blue,
+            percentage: parseInt(percentage.toFixed(2))
+          };
         }
-        
       }
       console.log(subjects);
       return subjects;
     },
     calculate() {
-      var stud = [];
-      var percentage = [];
       firebase
         .database()
-        .ref("students/" + this.subject.stream)
+        .ref("students")
         .once("value", snapshot => {
-          snapshot.forEach(student => {
-            stud.push({ id: student.val().id, name: student.val().name });
-          });
+          this.students = snapshot.val();
         })
         .then(() => {
-          for (var i in stud) {
-            percentage.push(this.calculatePercentage(stud[i].id, stud[i].name));
+            this.items = []
+          for (var i in this.students[this.yearCourseDiv]) {
+            this.items.push(
+              this.calculatePercentage(
+                this.students[this.yearCourseDiv][i].id,
+                this.students[this.yearCourseDiv][i].name
+              )
+            );
           }
-          this.dataitems = percentage;
         });
     },
     getAttendance() {
-      var att = {};
-      firebase
-        .database()
-        .ref("attendance/" + this.subject.stream + "/")
-        .once("value", snapshot => {
-          snapshot.forEach(subject => {
-            att[subject.key] = subject.val();
-          });
-        })
-        .then(() => {
-          this.attendance = att;
+        var flag2 = false
+        for(var yr in this.years){
+            if(this.year.value == this.years[yr].value){
+                this.semesters = this.year.semesters
+                flag2 = true
+            }
+        }
+        if(!flag2){
+            this.semesters = []
+        }
+        var flag = false
+        for(var course in this.attends){
+            if(course == this.yearCourseDiv){
+                this.attendance = this.attends[this.yearCourseDiv];
+                flag = true
+            }
+        }
+        if(!flag){
+            this.attendance = []
+        }
           this.calculate();
-        });
     }
   },
   mounted() {
+      firebase
+        .database()
+        .ref("attendance")
+        .once("value", snapshot => {
+          this.attends = snapshot.val();
+        })
+        .then(() => {
+          this.calculate();
+        });
     firebase
       .database()
-      .ref("faculties/" + firebase.auth().currentUser.uid + "/subjects")
+      .ref("courses")
       .once("value", snapshot => {
-        snapshot.forEach(batch => {
-          this.subjects.push({
-            text: batch.val().batch,
-            stream: batch.val().batch,
-            subject: batch.val().subject,
-            semester: batch.val().semester
-          });
-        });
-      })
-      .then(() => {
-        this.getAttendance();
+        this.courses = snapshot.val();
+      });
+    firebase
+      .database()
+      .ref("years")
+      .once("value", snapshot => {
+        this.years = snapshot.val();
+      });
+    firebase
+      .database()
+      .ref("divisions")
+      .once("value", snapshot => {
+        this.divisions = snapshot.val();
       });
   }
 };

@@ -15,6 +15,8 @@ import Edit from '@/components/Edit'
 import StudentReport from '@/components/StudentReport'
 import ClassReport from '@/components/ClassReport'
 import FacultyManage from '@/components/FacultyManage'
+import AdminAttendance from '@/components/AdminAttendance'
+import AdminSession from '@/components/AdminSession'
 
 Vue.use(VueRouter)
 
@@ -93,6 +95,16 @@ const routes = [
     path: '/ClassReport',
     name: 'ClassReport',
     component: ClassReport
+  },
+  {
+    path: '/AdminAttendance',
+    name: 'AdminAttendance',
+    component: AdminAttendance
+  },
+  {
+    path: '/AdminSession',
+    name: 'AdminSession',
+    component: AdminSession
   }
 ]
 

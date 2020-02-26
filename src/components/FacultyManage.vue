@@ -3,7 +3,7 @@
     <v-container>
       <v-form>
         <v-select :items="faculties" v-model="faculty" label="Select Faculty" return-object></v-select>
-        <v-simple-table>
+        <v-simple-table v-if="faculty">
           <template v-slot:default>
             <thead>
               <th>Batch</th>
@@ -23,7 +23,7 @@
             </tbody>
           </template>
         </v-simple-table>
-        <v-row class="text-right">
+        <v-row class="text-right" v-if="faculty">
           <v-col>
             <v-dialog v-model="dialog" persistent>
               <template v-slot:activator="{ on }">
@@ -58,6 +58,16 @@
                         label="Division"
                         :items="divisions"
                         v-model="division"
+                        @change="selectedCourseSubjects"
+                        return-object
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="6">
+                      <v-select
+                        label="Semester"
+                        :items="semesters"
+                        v-model="semester"
+                        @change="selectedCourseSubjects"
                         return-object
                       ></v-select>
                     </v-col>
@@ -93,37 +103,60 @@ export default {
       subject: {},
       years: [],
       year: {},
+      semesters: [],
+      semester: {},
       faculties: [],
-      faculty: {},
+      faculty: null,
       dialog: false,
       loading: false
     };
   },
   methods: {
     selectedCourseSubjects() {
-      this.subject = {};
+      var flag2 = false;
+      for(var yr in this.years){
+        if(this.years[yr].value == this.year.value){
+          this.semesters = this.year.semesters
+          flag2 = true
+        }
+      }
+      if(!flag2){
+        this.semesters = []
+      }
+      var flag3 = false;
+      for (var course in this.courses) {
+        if (this.course.value == this.courses[course].value) {
+          this.divisions = this.courses[course].divisions;
+          flag3 = true;
+        }
+      }
+      if (!flag3) {
+        this.divisions = [];
+      }
+      this.item = {};
+      this.items = [];
+      var flag = false;
       this.courses.forEach((course, i) => {
-        if (this.course.value == course.value) {
-          if (
-            this.courses[i].subjects &&
-            this.courses[i].subjects[this.year.value]
-          ) {
-            for (var yr in this.courses[i].subjects) {
-              if (this.year.value == yr) {
-                console.log(this.courses[i].subjects[yr]);
-                if (this.courses[i].subjects[yr]) {
-                  this.subjects = this.courses[i].subjects[yr];
-                } else {
-                  this.subjects = [];
+        if (this.course && this.course.value == course.value) {
+          for (var year in course.subjects) {
+            if (this.year && this.year.value == year) {
+              if (this.courses[i].subjects) {
+                for (var sem in course.subjects[year]) {
+                  if (this.semester.value == sem) {
+                    this.subjects = this.courses[i].subjects[this.year.value][
+                      sem
+                    ];
+                    flag = true;
+                  }
                 }
-                this.subject = {};
               }
             }
-          } else {
-            this.subjects = [];
           }
         }
       });
+      if (!flag) {
+        this.subjects = [];
+      }
     },
     removeSubjects(batch, subject, index) {
       if (
@@ -149,7 +182,7 @@ export default {
         .ref("faculties")
         .once("value", snapshot => {
           snapshot.forEach(faculty => {
-            if (faculty.val().subjects.findIndex(e => e === undefined) > -1) {
+            if (faculty.val().subjects) {
               var facsub = [];
               for (var i in faculty.val().subjects) {
                 if (faculty.val().subjects == undefined) {
@@ -186,7 +219,7 @@ export default {
         var course =
           this.year.value + this.course.value + "-" + this.division.value;
         var subject = this.subject.value;
-        this.faculty.subjects.push({ batch: course, subject: subject });
+        this.faculty.subjects.push({ batch: course,semester: this.semester.value, subject: subject });
         this.faculty.subjects = Array.from(
           new Set(this.faculty.subjects.map(JSON.stringify))
         ).map(JSON.parse);
@@ -205,6 +238,7 @@ export default {
       this.division = {};
       this.course = {};
       this.year = {};
+      this.semester = {};
     }
   },
   mounted() {
@@ -213,11 +247,7 @@ export default {
       .ref("courses")
       .once("value", snapshot => {
         snapshot.forEach(course => {
-          this.courses.push({
-            text: course.val().text,
-            value: course.val().value,
-            subjects: course.val().subjects
-          });
+          this.courses.push(course.val());
         });
       });
     firebase
@@ -227,18 +257,8 @@ export default {
         snapshot.forEach(year => {
           this.years.push({
             text: year.val().text,
-            value: year.val().value
-          });
-        });
-      });
-    firebase
-      .database()
-      .ref("divisions")
-      .once("value", snapshot => {
-        snapshot.forEach(division => {
-          this.divisions.push({
-            text: division.val().text,
-            value: division.val().value
+            value: year.val().value,
+            semesters: year.val().semesters
           });
         });
       });

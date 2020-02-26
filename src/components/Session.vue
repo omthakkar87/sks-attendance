@@ -32,25 +32,58 @@ const convertArrayToObject = (array, key) => {
 export default {
   data() {
     return {
-      classes: "TYBSCIT-A",
-      subject: "SIC",
+      classes: "",
+      subject: "",
       sessions: [],
-      noOfLect: null
+      noOfLect: null,
+      semester: ""
     };
   },
   methods: {
     endSession() {
+      var present = 0;
+      var absent = 0;
+      var onlygps = 0;
       var attendance = convertArrayToObject(this.sessions, "id");
       console.log(attendance);
-      firebase
-        .database()
-        .ref(
-          "attendance/" + this.classes + "/" + this.subject + "/" + Date.now()
+      for (var student in this.sessions) {
+        if (this.sessions[student].status == "green") {
+          present++;
+        }
+        if (this.sessions[student].status == "blue") {
+          onlygps++;
+        }
+        if (this.sessions[student].status == "") {
+          absent++;
+        }
+      }
+      if (
+        confirm(
+          "Present : " +
+            present +
+            "\nAbsent : " +
+            absent +
+            "\nOnlyGPS : " +
+            onlygps
         )
-        .set(attendance)
-        .then(() => {
-          this.$router.push("/FacultyHome");
-        });
+      ) {
+        firebase
+          .database()
+          .ref(
+            "attendance/" +
+              this.classes +
+              "/" +
+              this.semester +
+              "/" +
+              this.subject +
+              "/" +
+              Date.now()
+          )
+          .set(attendance)
+          .then(() => {
+            this.$router.push("/FacultyHome");
+          });
+      }
     },
     mark(roll) {
       this.sessions.find((item, i) => {
@@ -75,6 +108,7 @@ export default {
         this.classes = snapshot.val().class;
         this.subject = snapshot.val().subject;
         this.noOfLect = snapshot.val().noOfLect;
+        this.semester = snapshot.val().semester;
       })
       .then(() => {
         firebase
@@ -85,7 +119,7 @@ export default {
               this.sessions.push({
                 roll: student.key,
                 id: student.val().id,
-                uid: student.val().uid,
+                uid: student.val().uid ? student.val().uid : "",
                 status: "",
                 sessionid: this.$route.params.sessionid,
                 noOfLect: this.noOfLect
