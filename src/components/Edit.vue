@@ -266,7 +266,7 @@
       <h3 class="text-center ma-5 text-capitalize">Edit {{ edittype }}</h3>
       <v-row class="mx-5">
         <v-col>
-          <v-select :items="courses" @change="selecteddivision" v-model="course" return-object></v-select>
+          <v-select :items="courses" @change="selecteddivision" label="Select Course" v-model="course" return-object></v-select>
         </v-col>
       </v-row>
       <v-simple-table class="ma-3">

@@ -1,5 +1,14 @@
 <template>
-  <div class="ma-3 mt-5">
+  <div class="ma-3 mt-5 printlight">
+    <v-row class="text-center">
+      <v-spacer></v-spacer>
+      <v-col cols="6">
+        <v-btn color="primary" @click="printReport()" >
+          <v-icon left>mdi-google-spreadsheet</v-icon>
+          <span>Export XLSX</span></v-btn>
+      </v-col>
+      <v-spacer></v-spacer>
+    </v-row>
     <v-row class="px-5">
       <v-col>
         <v-select
@@ -28,6 +37,7 @@
       :items="getDefaulters"
       :headers="headers"
       :items-per-page="-1"
+      ref="report"
     >
       <template v-slot:expanded-item="{item,headers}">
         <td :colspan="headers.length">
@@ -64,10 +74,12 @@
 <script>
 import firebase from "firebase";
 import { mask } from "vue-the-mask";
+import { json2excel } from "js2excel";
 export default {
   directives: {
     mask
   },
+  inject: ["theme"],
   data() {
     return {
       attendance: {},
@@ -121,6 +133,25 @@ export default {
       // but if you click an expanded row, you want it to collapse
       this.expanded = item === this.expanded[0] ? [] : [item];
     },
+    printReport() {
+      let data = this.dataitems
+      for(var i in data){
+        delete data[i].subjects
+        delete data[i].id
+      }
+      console.log(data)
+      // this will be export a excel and the file's name is user-info-data.xlsx
+      // the default file's name is excel.xlsx
+      try {
+        json2excel({
+          data,
+          name: "user-info-data",
+          formateDate: "yyyy/mm/dd"
+        });
+      } catch (e) {
+        console.error("export error");
+      }
+    },
     calculatePercentage(clgid, name) {
       var total = 0;
       var totalgreen = 0;
@@ -163,22 +194,6 @@ export default {
                         )
                       : 1);
                 }
-                if (
-                  this.attendance[semester][subject][timestamp][student]
-                    .status == "blue"
-                ) {
-                  totalblue =
-                    totalblue +
-                    (parseInt(
-                      this.attendance[semester][subject][timestamp][student]
-                        .noOfLect
-                    )
-                      ? parseInt(
-                          this.attendance[semester][subject][timestamp][student]
-                            .noOfLect
-                        ) / 2
-                      : 0.5);
-                }
               }
               // console.log(this.attendance[semester][subject][timestamp][student])
             }
@@ -207,54 +222,49 @@ export default {
           var total = 0;
           for (var timestamp in this.attendance[semester][subject]) {
             for (var student in this.attendance[semester][subject][timestamp]) {
-              if (this.attendance[semester][subject][timestamp][student].id == clgid) {
+              if (
+                this.attendance[semester][subject][timestamp][student].id ==
+                clgid
+              ) {
                 total =
                   total +
                   (parseInt(
-                    this.attendance[semester][subject][timestamp][student].noOfLect
+                    this.attendance[semester][subject][timestamp][student]
+                      .noOfLect
                   )
                     ? parseInt(
-                        this.attendance[semester][subject][timestamp][student].noOfLect
+                        this.attendance[semester][subject][timestamp][student]
+                          .noOfLect
                       )
                     : 1);
                 if (
-                  this.attendance[semester][subject][timestamp][student].status == "green"
+                  this.attendance[semester][subject][timestamp][student]
+                    .status == "green"
                 ) {
                   green =
                     green +
                     (parseInt(
-                      this.attendance[semester][subject][timestamp][student].noOfLect
+                      this.attendance[semester][subject][timestamp][student]
+                        .noOfLect
                     )
                       ? parseInt(
-                          this.attendance[semester][subject][timestamp][student].noOfLect
+                          this.attendance[semester][subject][timestamp][student]
+                            .noOfLect
                         )
                       : 1);
                 }
-                if (
-                  this.attendance[semester][subject][timestamp][student].status == "blue"
-                ) {
-                  blue =
-                    blue +
-                    (parseInt(
-                      this.attendance[semester][subject][timestamp][student].noOfLect
-                    )
-                      ? parseInt(
-                          this.attendance[semester][subject][timestamp][student].noOfLect
-                        ) / 2
-                      : 0.5);
-                }
               }
             }
-          }percentage = ((green + blue) / total) * 100;
-        console.log(subject, green, blue, total, percentage);
-        subjects[subject] = {
-          subject: subject,
-          total: total,
-          attended: green + blue,
-          percentage: parseInt(percentage.toFixed(2))
-        };
+          }
+          percentage = ((green + blue) / total) * 100;
+          console.log(subject, green, blue, total, percentage);
+          subjects[subject] = {
+            subject: subject,
+            total: total,
+            attended: green + blue,
+            percentage: parseInt(percentage.toFixed(2))
+          };
         }
-        
       }
       console.log(subjects);
       return subjects;
@@ -290,6 +300,8 @@ export default {
         .then(() => {
           this.attendance = att;
           this.calculate();
+
+          this.total = 0;
         });
     }
   },

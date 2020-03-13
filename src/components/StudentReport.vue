@@ -53,7 +53,7 @@ export default {
       expanded: [],
       clgid: null,
       name: null,
-      classes: "TYBSCIT-A",
+      classes: null,
       dataitems: [],
       headers: [
         { text: "Subject", value: "subject" },
@@ -106,22 +106,6 @@ export default {
                           .noOfLect
                       )
                     : 1);
-              }
-              if (
-                this.attendance[semester][subject][timestamp][student].status ==
-                "blue"
-              ) {
-                blue =
-                  blue +
-                  (parseInt(
-                    this.attendance[semester][subject][timestamp][student]
-                      .noOfLect
-                  )
-                    ? parseInt(
-                        this.attendance[semester][subject][timestamp][student]
-                          .noOfLect
-                      ) / 2
-                    : 0.5);
               }
             }
           }
@@ -201,22 +185,6 @@ export default {
                             .noOfLect
                         )
                       : 1);
-                }
-                if (
-                  this.attendance[semester][subject][timestamp][student]
-                    .status == "blue"
-                ) {
-                  blue =
-                    blue +
-                    (parseInt(
-                      this.attendance[semester][subject][timestamp][student]
-                        .noOfLect
-                    )
-                      ? parseInt(
-                          this.attendance[semester][subject][timestamp][student]
-                            .noOfLect
-                        ) / 2
-                      : 0.5);
                 }
               }
             }

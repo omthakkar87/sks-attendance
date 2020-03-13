@@ -10,14 +10,14 @@
                 <v-spacer></v-spacer>
               </v-toolbar>
               <v-card-text>
-                <v-form @submit.prevent="signup">
+                <v-form @submit.prevent="signup" v-model="disabled">
                   <v-text-field
                     v-model="collegeid"
                     prepend-icon="mdi-clipboard-account"
                     name="CollegeID"
                     label="College ID"
                     type="text"
-                    :rules="[rules.required]"
+                    :rules="[rules.required,rules.clgidCounter]"
                     v-mask="mask"
                   ></v-text-field>
                   <v-text-field
@@ -54,7 +54,7 @@
                     <v-spacer></v-spacer>
                     <v-btn
                       color="primary"
-                      :disabled="disabled"
+                      :disabled="!disabled"
                       :loading="loading"
                       type="submit"
                     >Sign Up</v-btn>
@@ -90,7 +90,8 @@ export default {
       password2: "",
       rules: {
         required: value => !!value || "Required.",
-        counter: value => value.length >= 7 || "Min 8 characters",
+        counter: value => value.length > 7 || "Min 8 characters",
+        clgidCounter: value => value.length > 9 || "Min 10 characters",
         email: value => {
           const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
           return pattern.test(value) || "Invalid e-mail.";
@@ -106,58 +107,84 @@ export default {
   methods: {
     signup() {
       this.loading = true;
-      this.disabled = true;
+      this.disabled = false;
+      var flag = false;
       firebase
-        .auth()
-        .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-        .then(() => {
-          return firebase
-            .auth()
-            .createUserWithEmailAndPassword(this.email, this.password)
-            .then(() => {
-              firebase
-                .database()
-                .ref("users/" + firebase.auth().currentUser.uid)
-                .set({
-                  id: this.collegeid,
-                  role: "student"
-                });
-              firebase
-                .database()
-                .ref("students")
-                .once("value", snapshot => {
-                  snapshot.forEach(classes => {
-                    classes.forEach(roll => {
-                      if (roll.val().id == this.collegeid) {
-                        firebase
-                          .database()
-                          .ref(
-                            "students/" + classes.key + "/" + roll.key + "/uid"
-                          )
-                          .set(firebase.auth().currentUser.uid)
-                          .then(() => {
-                            console.log("UID Set In Student Node");
-                          });
-                      }
-                    });
-                  });
-                });
-            })
-            .catch(error => {
-              console.log(error.log);
-              alert(error.message);
-              this.loading = false;
-              this.disabled = false;
-              console.log("create user with email & password error");
-            });
+        .database()
+        .ref("users")
+        .once("value", snapshot => {
+          snapshot.forEach(user => {
+            if (this.collegeid == user.val().id) {
+              flag = true;
+            }
+          });
         })
-        .catch(error => {
-          // Handle Errors here.
-          console.log(error.log);
-          alert(error.message);
-          this.loading = false;
-          this.disabled = false;
-          console.log("setPersistence error");
+        .then(() => {
+          if (flag) {
+            alert("College ID Already Exist");
+            
+      this.loading = false;
+      this.disabled = true;
+      this.$router.push("/")
+          }
+          if (!flag) {
+            firebase
+              .auth()
+              .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+              .then(() => {
+                return firebase
+                  .auth()
+                  .createUserWithEmailAndPassword(this.email, this.password)
+                  .then(() => {
+                    firebase
+                      .database()
+                      .ref("users/" + firebase.auth().currentUser.uid)
+                      .set({
+                        id: this.collegeid,
+                        role: "student"
+                      });
+                    firebase
+                      .database()
+                      .ref("students")
+                      .once("value", snapshot => {
+                        snapshot.forEach(classes => {
+                          classes.forEach(roll => {
+                            if (roll.val().id == this.collegeid) {
+                              firebase
+                                .database()
+                                .ref(
+                                  "students/" +
+                                    classes.key +
+                                    "/" +
+                                    roll.key +
+                                    "/uid"
+                                )
+                                .set(firebase.auth().currentUser.uid)
+                                .then(() => {
+                                  console.log("UID Set In Student Node");
+                                });
+                            }
+                          });
+                        });
+                      });
+                  })
+                  .catch(error => {
+                    console.log(error.log);
+                    alert(error.message);
+                    this.loading = false;
+                    this.disabled = true;
+                    console.log("create user with email & password error");
+                  });
+              })
+              .catch(error => {
+                // Handle Errors here.
+                console.log(error.log);
+                alert(error.message);
+                this.loading = false;
+                this.disabled = true;
+                console.log("setPersistence error");
+              });
+          }
         });
     }
   },

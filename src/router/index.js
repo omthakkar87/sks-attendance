@@ -2,21 +2,19 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
-import StudentProfile from '@/components/StudentProfile'
 import StudentSignUp from '@/components/StudentSignUp'
-import FacultySignUp from '@/components/FacultySignUp'
 import StudentHome from '@/components/StudentHome'
-import FacultyHome from '@/components/FacultyHome'
-import AdminHome from '@/components/AdminHome'
+import StudentReport from '@/components/StudentReport'
+import StudentProfile from '@/components/StudentProfile'
 import Mark from '@/components/Mark'
+import FacultyHome from '@/components/FacultyHome'
+import FacultySignUp from '@/components/FacultySignUp'
+import FacultyManage from '@/components/FacultyManage'
+import AdminHome from '@/components/AdminHome'
 import Take from '@/components/Take'
 import Session from '@/components/Session'
 import Edit from '@/components/Edit'
-import StudentReport from '@/components/StudentReport'
 import ClassReport from '@/components/ClassReport'
-import FacultyManage from '@/components/FacultyManage'
-import AdminAttendance from '@/components/AdminAttendance'
-import AdminSession from '@/components/AdminSession'
 
 Vue.use(VueRouter)
 
@@ -95,16 +93,6 @@ const routes = [
     path: '/ClassReport',
     name: 'ClassReport',
     component: ClassReport
-  },
-  {
-    path: '/AdminAttendance',
-    name: 'AdminAttendance',
-    component: AdminAttendance
-  },
-  {
-    path: '/AdminSession',
-    name: 'AdminSession',
-    component: AdminSession
   }
 ]
 

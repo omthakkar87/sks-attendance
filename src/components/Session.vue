@@ -81,7 +81,14 @@ export default {
           )
           .set(attendance)
           .then(() => {
-            this.$router.push("/FacultyHome");
+            firebase
+              .database()
+              .ref("sessions/" + this.$route.params.sessionid)
+              .set({})
+              .then(() => {
+                alert("Session Ended Successfully.");
+                this.$router.push("/FacultyHome");
+              });
           });
       }
     },

@@ -9,10 +9,9 @@
       <v-menu offset-y>
         <template v-slot:activator="{ on }">
           <v-avatar color="grey darken-2" v-on="on" size="36">
-            <v-icon v-if="(role == 'home')">mdi-account-circle</v-icon>
-
+            <v-icon v-if="(role == '')">mdi-account-circle</v-icon>
             <img
-              v-if="(role != 'home')"
+              v-if="(role != '')"
               :src="'https://myaccount.somaiya.edu/Images/Id/' + clgid + '.jpg'"
             />
           </v-avatar>
@@ -35,7 +34,7 @@
     </v-app-bar>
 
     <v-content>
-      <router-view :clgid="clgid"></router-view>
+      <router-view :role="role" :clgid="clgid"></router-view>
     </v-content>
   </v-app>
 </template>
@@ -47,17 +46,15 @@ export default {
   data() {
     return {
       role: "home",
-      clgid: 0,
+      clgid: 0
     };
   },
   methods: {
     signOut() {
       firebase.auth().signOut();
-      console.log("Sign Out");
-      this.role = "home";
+      this.role = undefined;
     },
     viewProfile() {
-      console.log("View Profile");
       this.$router.push("/StudentProfile");
     },
     checkAuthRole() {
@@ -67,35 +64,42 @@ export default {
         this.$router.push("/FacultyHome");
       } else if (this.role == "admin") {
         this.$router.push("/AdminHome");
-      } else {
+      } else if (this.role == undefined) {
         this.$router.push("/");
       }
     }
   },
   mounted() {
+    document.addEventListener("backbutton", ()=>{
+      if(this.$route.path == '/StudentHome' || this.$route.path == '/StudentHome' || this.$route.path == '/FacultyHome' || this.$route.path == '/AdminHome' ){
+        if(confirm("Do Really Want To Exit???")){
+          navigator.app.exitApp()
+        }
+      }else{
+        this.$router.go(-1)
+      }
+    }, false);
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         firebase
           .database()
           .ref("users/" + user.uid)
           .once("value", snapshot => {
-            var userdata = snapshot.val();
-            this.clgid = userdata.id;
-            if (userdata.role == "student") {
-              this.role = "student";
+            this.role = snapshot.val().role;
+            this.clgid = snapshot.val().id;
+            if (this.role == "student") {
               this.$router.push("/StudentHome");
-            } else if (userdata.role == "faculty") {
-              this.role = "faculty";
+            } else if (this.role == "faculty") {
               this.$router.push("/FacultyHome");
-            } else if (userdata.role == "admin") {
-              this.role = "admin";
+            } else if (this.role == "admin") {
               this.$router.push("/AdminHome");
-            } else {
-              this.role = "home";
+            } else if (this.role == undefined) {
               this.$router.push("/");
             }
           });
       } else {
+        this.clgid = 0;
+        this.role = "";
         this.$router.push("/Login");
       }
     });

@@ -10,7 +10,7 @@
                 <v-spacer></v-spacer>
               </v-toolbar>
               <v-card-text>
-                <v-form @submit.prevent="login">
+                <v-form @submit.prevent="login" v-model="disabled">
                   <v-text-field
                     v-model="email"
                     :rules="emailRules"
@@ -44,7 +44,7 @@
                     <v-spacer></v-spacer>
                     <v-btn
                       color="primary"
-                      :disabled="disabled"
+                      :disabled="!disabled"
                       :loading="loading"
                       type="submit"
                     >Login</v-btn>
@@ -91,17 +91,18 @@ export default {
           this.forgotpass = false;
         })
         .catch(error => {
-          // Handle Errors here.
           if (error.code == "auth/invalid-email") {
             alert("Enter The Email Address To Reset Its Password");
           }
-          // alert(error.code + " : " + error.message);
+          else{
+            alert(error.message)
+          }
           this.forgotpass = false;
         });
     },
     login() {
       this.loading = true;
-      this.disabled = true;
+      this.disabled = false;
       firebase
         .auth()
         .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
@@ -110,16 +111,17 @@ export default {
             .auth()
             .signInWithEmailAndPassword(this.email, this.password)
             .catch(error => {
-              alert(error.code + " : " + error.message);
+              console.log(error.code);
+              alert(error.message);
               this.loading = false;
-              this.disabled = false;
+              this.disabled = true;
             });
         })
         .catch(function(error) {
-          // Handle Errors here.
-          alert(error.code + " : " + error.message);
+          console.log(error.code);
+          alert(error.message);
           this.loading = false;
-          this.disabled = false;
+          this.disabled = true;
         });
     }
   },

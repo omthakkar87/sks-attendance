@@ -27,6 +27,7 @@
     "core-js": "^3.4.4",
     "firebase": "^7.6.2",
     "geolocation-utils": "^1.2.2",
+    "js2excel": "^1.0.1",
     "register-service-worker": "^1.6.2",
     "roboto-fontface": "*",
     "vue": "^2.6.10",
