@@ -12,13 +12,13 @@ Vue.config.productionTip = false
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCUTHRJo6tMY96W13Waec1NCNxNLWFsEaY",
-  authDomain: "sks-attendance.firebaseapp.com",
-  databaseURL: "https://sks-attendance.firebaseio.com",
-  projectId: "sks-attendance",
+  apiKey: "",
+  authDomain: "",
+  databaseURL: "",
+  projectId: "",
   storageBucket: "",
-  messagingSenderId: "515804574384",
-  appId: "1:515804574384:web:e9f17c0928a87a1e"
+  messagingSenderId: "",
+  appId: ""
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);

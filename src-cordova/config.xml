@@ -14,6 +14,8 @@
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+    <allow-intent href="http://*" />
+    <allow-intent href="https://*" />
     <allow-intent href="tel:*" />
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
@@ -39,8 +41,6 @@
         <splash density="land-xhdpi" src="res/screen/android/splash-land-xhdpi.png"/>
         <splash density="land-xxhdpi" src="res/screen/android/splash-land-xxhdpi.png"/>
         <splash density="land-xxxhdpi" src="res/screen/android/splash-land-xxxhdpi.png"/>
-        
-
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />

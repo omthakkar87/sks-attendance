@@ -9,7 +9,9 @@
                 <v-toolbar-title>Create Account</v-toolbar-title>
                 <v-spacer></v-spacer>
               </v-toolbar>
-              <v-stepper-step :complete="steps > 1" step="1">Create An Account</v-stepper-step>
+              <v-stepper-step :complete="steps > 1" step="1"
+                >Create An Account</v-stepper-step
+              >
               <v-stepper-content step="1">
                 <v-form @submit.prevent="signupFaculty">
                   <v-text-field
@@ -66,11 +68,14 @@
                       :disabled="disabled"
                       :loading="loading"
                       type="submit"
-                    >Create</v-btn>
+                      >Create</v-btn
+                    >
                   </v-card-actions>
                 </v-form>
               </v-stepper-content>
-              <v-stepper-step :complete="steps > 2" step="2">Add Courses & Subject Details</v-stepper-step>
+              <v-stepper-step :complete="steps > 2" step="2"
+                >Add Courses & Subject Details</v-stepper-step
+              >
               <v-stepper-content step="2">
                 <v-form @submit.prevent="signup">
                   <v-select
@@ -93,7 +98,6 @@
                     :rules="[rules.required]"
                     @change="selectedCourseSubjects"
                   ></v-select>
-
                   <v-select
                     :items="semesters"
                     v-model="semester"
@@ -139,11 +143,16 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-for="(addedSub,index) in addedSubs" :key="index">
-                          <td class="text-center">{{addedSub.batch}}</td>
-                          <td class="text-center">{{addedSub.subject}}</td>
+                        <tr v-for="(addedSub, index) in addedSubs" :key="index">
+                          <td class="text-center">{{ addedSub.batch }}</td>
+                          <td class="text-center">{{ addedSub.subject }}</td>
                           <td>
-                            <v-btn small text fab @click="RemoveSubject(addedSub,index)">
+                            <v-btn
+                              small
+                              text
+                              fab
+                              @click="RemoveSubject(addedSub, index)"
+                            >
                               <v-icon small>mdi-delete</v-icon>
                             </v-btn>
                           </td>
@@ -151,7 +160,6 @@
                       </tbody>
                     </template>
                   </v-simple-table>
-
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn
@@ -159,7 +167,8 @@
                       :disabled="disabled"
                       :loading="loading"
                       type="submit"
-                    >Sign Up</v-btn>
+                      >Sign Up</v-btn
+                    >
                   </v-card-actions>
                 </v-form>
               </v-stepper-content>
@@ -170,7 +179,6 @@
     </v-content>
   </div>
 </template>
-
 
 <script>
 import { mask } from "vue-the-mask";
@@ -201,35 +209,15 @@ export default {
       collegeid: null,
       rollno: null,
       email: "",
-      courses: [
-        { text: "B. Sc. IT", value: "BSCIT" },
-        { text: "B. Sc. CS", value: "BSCCS" },
-        { text: "B. A.", value: "BA" }
-      ],
+      courses: [],
       course: "",
-      divisions: [
-        { text: "A", value: "A" },
-        { text: "B", value: "B" },
-        { text: "C", value: "C" }
-      ],
+      divisions: [],
       division: "",
-      years: [
-        { text: "First Year (FY)", value: "FY" },
-        { text: "Second Year (SY)", value: "SY" },
-        { text: "Third Year (TY)", value: "TY" }
-      ],
+      years: [],
       year: "",
-      semesters: [
-        { text: "First Year (FY)", value: "FY" },
-        { text: "Second Year (SY)", value: "SY" },
-        { text: "Third Year (TY)", value: "TY" }
-      ],
+      semesters: [],
       semester: "",
-      subjects: [
-        { text: "Business Intelligence", value: "BI" },
-        { text: "IT Service Management", value: "ITSM" },
-        { text: "Securtiy In Computing", value: "SIC" }
-      ],
+      subjects: [],
       subject: "",
       addedSubs: [],
       disabled: false,
@@ -380,5 +368,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

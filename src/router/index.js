@@ -15,6 +15,7 @@ import Take from '@/components/Take'
 import Session from '@/components/Session'
 import Edit from '@/components/Edit'
 import ClassReport from '@/components/ClassReport'
+import PrintReport from '@/components/PrintReport'
 
 Vue.use(VueRouter)
 
@@ -93,6 +94,11 @@ const routes = [
     path: '/ClassReport',
     name: 'ClassReport',
     component: ClassReport
+  },
+  {
+    path: '/PrintReport',
+    name: 'PrintReport',
+    component: PrintReport
   }
 ]
 

@@ -50,8 +50,6 @@
 </template>
 
 <script>
-/* eslint-disable no-undef */
-// import { insidePolygon } from "geolocation-utils";
 import firebase from "firebase";
 
 export default {
@@ -71,7 +69,6 @@ export default {
   props: ["clgid"],
   methods: {
     checkcode() {
-      //query database for a session with sessionid
       firebase
         .database()
         .ref("/sessions/" + this.$route.params.sessionid)
@@ -88,7 +85,6 @@ export default {
         });
     },
     getgps() {
-      // gives the gps lati,longi & accuracy of device.
       navigator.geolocation.getCurrentPosition(
         position => {
           this.gps.latitude = position.coords.latitude;
@@ -106,16 +102,6 @@ export default {
             bounds,
             Math.sqrt(this.gps.accuracy) / 100
           );
-          // alert(
-          //   "GPS Inside: " +
-          //     x +
-          //     "\nPoint:" +
-          //     point[0] +
-          //     "," +
-          //     point[1] +
-          //     "\nBounds:" +
-          //     JSON.stringify(bounds)
-          // );
           this.gps.inside = x;
           firebase
             .database()
@@ -171,9 +157,7 @@ export default {
       var devices = [];
       bluetoothSerial.setName("SKS" + this.clgid);
       bluetoothSerial.setDiscoverable(0);
-      //added a listener for my bt.
       this.getgps();
-      //discovering others now
       bluetoothSerial.setDeviceDiscoveredListener(device => {
         if (device.name) {
           console.log("Found: " + device.name);
@@ -212,8 +196,43 @@ export default {
       );
     },
     marksuccess() {
+      var devices = [];
       alert("Your Attendance Is Marked Successfully!!!");
       this.snackbar = true;
+      bluetoothSerial.setDeviceDiscoveredListener(device => {
+        if (device.name) {
+          console.log("Found: " + device.name);
+          devices.push(device.name);
+        }
+      });
+      bluetoothSerial.discoverUnpaired(
+        success => {
+          console.log(success);
+          devices.concat(success);
+          console.log(devices);
+          devices = Array.from(new Set(devices));
+          console.log(devices);
+          devices.forEach(device => {
+            if (device.substring(0, 3) == "SKS") {
+              this.sksdevice.push(device.substring(3));
+              firebase
+                .database()
+                .ref(
+                  "sessions/" +
+                    this.$route.params.sessionid +
+                    "/attendance/" +
+                    device.substring(3)
+                )
+                .update({
+                  bt: true
+                });
+            }
+          });
+          this.btdevices = devices;
+        },
+        failure => {
+          alert(JSON.stringify(failure));
+        });
     }
   },
   mounted() {

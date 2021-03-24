@@ -177,7 +177,6 @@ export default {
                   });
               })
               .catch(error => {
-                // Handle Errors here.
                 console.log(error.log);
                 alert(error.message);
                 this.loading = false;

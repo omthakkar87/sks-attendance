@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary">
+    <v-app-bar app color="primary" v-if="$route.path != '/PrintReport'">
       <v-toolbar-title @click="checkAuthRole" class="headline text-uppercase">
         <span class="font-weight-medium">SKS</span>
         <span class="font-weight-light">Attendance</span>
@@ -34,7 +34,7 @@
     </v-app-bar>
 
     <v-content>
-      <router-view :role="role" :clgid="clgid"></router-view>
+      <router-view :role="role" :myclass="myclass" @classChanged="classChanged" :printData="printData" @printChanged="printChanged" :clgid="clgid"></router-view>
     </v-content>
   </v-app>
 </template>
@@ -46,13 +46,20 @@ export default {
   data() {
     return {
       role: "home",
-      clgid: 0
+      clgid: 0,
+      printData: []
     };
   },
   methods: {
     signOut() {
       firebase.auth().signOut();
       this.role = undefined;
+    },
+    printChanged(value){
+      this.printData = value
+    },
+    classChanged(value){
+      this.myclass = value
     },
     viewProfile() {
       this.$router.push("/StudentProfile");
@@ -70,6 +77,7 @@ export default {
     }
   },
   mounted() {
+    console.log(this.$route.path)
     document.addEventListener("backbutton", ()=>{
       if(this.$route.path == '/StudentHome' || this.$route.path == '/StudentHome' || this.$route.path == '/FacultyHome' || this.$route.path == '/AdminHome' ){
         if(confirm("Do Really Want To Exit???")){

@@ -2,25 +2,29 @@
   <div class="edit">
     <div
       class="edititems"
-      v-if="edittype != 'subjects' && edittype !='semesters' && edittype != 'divisions'"
+      v-if="
+        edittype != 'subjects' &&
+          edittype != 'semesters' &&
+          edittype != 'divisions'
+      "
     >
       <h3 class="text-center ma-5 text-capitalize">Edit {{ edittype }}</h3>
       <v-simple-table class="ma-3">
         <template v-slot:default>
           <thead>
-            <th>{{edittype}}</th>
+            <th>{{ edittype }}</th>
             <th>Value</th>
             <th>Actions</th>
           </thead>
           <tbody>
-            <tr v-for="(item,index) in items" :key="index">
-              <td>{{item.text}}</td>
-              <td>{{item.value}}</td>
+            <tr v-for="(item, index) in items" :key="index">
+              <td>{{ item.text }}</td>
+              <td>{{ item.value }}</td>
               <td>
-                <v-btn small text fab @click="EditDialog(item,index)">
+                <v-btn small text fab @click="EditDialog(item, index)">
                   <v-icon small>mdi-pencil</v-icon>
                 </v-btn>
-                <v-btn small text fab @click="RemoveItem(item,index)">
+                <v-btn small text fab @click="RemoveItem(item, index)">
                   <v-icon small>mdi-delete</v-icon>
                 </v-btn>
               </td>
@@ -35,7 +39,9 @@
       </v-row>
       <v-dialog v-model="dialog2">
         <v-card>
-          <v-card-title class="text-center">Add {{edittype}} Item</v-card-title>
+          <v-card-title class="text-center"
+            >Add {{ edittype }} Item</v-card-title
+          >
           <v-card-text>
             <v-container>
               <v-row>
@@ -57,7 +63,9 @@
       </v-dialog>
       <v-dialog v-model="dialog">
         <v-card>
-          <v-card-title class="text-center">Edit {{edittype}} Item</v-card-title>
+          <v-card-title class="text-center"
+            >Edit {{ edittype }} Item</v-card-title
+          >
           <v-card-text>
             <v-container>
               <v-row>
@@ -109,22 +117,22 @@
           ></v-select>
         </v-col>
       </v-row>
-      <v-simple-table v-if="semester&&year&&course" class="ma-3">
+      <v-simple-table v-if="semester && year && course" class="ma-3">
         <template v-slot:default>
           <thead>
-            <th>{{edittype}}</th>
+            <th>{{ edittype }}</th>
             <th>Value</th>
             <th>Actions</th>
           </thead>
           <tbody>
-            <tr v-for="(item,index) in items" :key="index">
-              <td>{{item.text}}</td>
-              <td>{{item.value}}</td>
+            <tr v-for="(item, index) in items" :key="index">
+              <td>{{ item.text }}</td>
+              <td>{{ item.value }}</td>
               <td>
-                <v-btn small text fab @click="EditSubjectDialog(item,index)">
+                <v-btn small text fab @click="EditSubjectDialog(item, index)">
                   <v-icon small>mdi-pencil</v-icon>
                 </v-btn>
-                <v-btn small text fab @click="RemoveSubject(item,index)">
+                <v-btn small text fab @click="RemoveSubject(item, index)">
                   <v-icon small>mdi-delete</v-icon>
                 </v-btn>
               </td>
@@ -139,7 +147,9 @@
       </v-row>
       <v-dialog v-model="dialog2">
         <v-card>
-          <v-card-title class="text-center">Add {{edittype}} Item</v-card-title>
+          <v-card-title class="text-center">
+            Add {{ edittype }} Item
+          </v-card-title>
           <v-card-text>
             <v-container>
               <v-row>
@@ -161,7 +171,9 @@
       </v-dialog>
       <v-dialog v-model="dialog">
         <v-card>
-          <v-card-title class="text-center">Edit {{edittype}} Item</v-card-title>
+          <v-card-title class="text-center">
+            Edit {{ edittype }} Item
+          </v-card-title>
           <v-card-text>
             <v-container>
               <v-row>
@@ -186,25 +198,30 @@
       <h3 class="text-center ma-5 text-capitalize">Edit {{ edittype }}</h3>
       <v-row class="mx-5">
         <v-col>
-          <v-select :items="years" @change="selectedyear" v-model="year" return-object></v-select>
+          <v-select
+            :items="years"
+            @change="selectedyear"
+            v-model="year"
+            return-object
+          ></v-select>
         </v-col>
       </v-row>
       <v-simple-table class="ma-3">
         <template v-slot:default>
           <thead>
-            <th>{{edittype}}</th>
+            <th>{{ edittype }}</th>
             <th>Value</th>
             <th>Actions</th>
           </thead>
           <tbody>
-            <tr v-for="(item,index) in items" :key="index">
-              <td>{{item.text}}</td>
-              <td>{{item.value}}</td>
+            <tr v-for="(item, index) in items" :key="index">
+              <td>{{ item.text }}</td>
+              <td>{{ item.value }}</td>
               <td>
-                <v-btn small text fab @click="EditSemesterDialog(item,index)">
+                <v-btn small text fab @click="EditSemesterDialog(item, index)">
                   <v-icon small>mdi-pencil</v-icon>
                 </v-btn>
-                <v-btn small text fab @click="RemoveSemester(item,index)">
+                <v-btn small text fab @click="RemoveSemester(item, index)">
                   <v-icon small>mdi-delete</v-icon>
                 </v-btn>
               </td>
@@ -219,7 +236,9 @@
       </v-row>
       <v-dialog v-model="dialog2">
         <v-card>
-          <v-card-title class="text-center">Add {{edittype}} Item</v-card-title>
+          <v-card-title class="text-center">
+            Add {{ edittype }} Item
+          </v-card-title>
           <v-card-text>
             <v-container>
               <v-row>
@@ -241,7 +260,9 @@
       </v-dialog>
       <v-dialog v-model="dialog">
         <v-card>
-          <v-card-title class="text-center">Edit {{edittype}} Item</v-card-title>
+          <v-card-title class="text-center">
+            Edit {{ edittype }} Item
+          </v-card-title>
           <v-card-text>
             <v-container>
               <v-row>
@@ -266,25 +287,31 @@
       <h3 class="text-center ma-5 text-capitalize">Edit {{ edittype }}</h3>
       <v-row class="mx-5">
         <v-col>
-          <v-select :items="courses" @change="selecteddivision" label="Select Course" v-model="course" return-object></v-select>
+          <v-select
+            :items="courses"
+            @change="selecteddivision"
+            label="Select Course"
+            v-model="course"
+            return-object
+          ></v-select>
         </v-col>
       </v-row>
       <v-simple-table class="ma-3">
         <template v-slot:default>
           <thead>
-            <th>{{edittype}}</th>
+            <th>{{ edittype }}</th>
             <th>Value</th>
             <th>Actions</th>
           </thead>
           <tbody>
-            <tr v-for="(item,index) in items" :key="index">
-              <td>{{item.text}}</td>
-              <td>{{item.value}}</td>
+            <tr v-for="(item, index) in items" :key="index">
+              <td>{{ item.text }}</td>
+              <td>{{ item.value }}</td>
               <td>
-                <v-btn small text fab @click="EditDivisionDialog(item,index)">
+                <v-btn small text fab @click="EditDivisionDialog(item, index)">
                   <v-icon small>mdi-pencil</v-icon>
                 </v-btn>
-                <v-btn small text fab @click="RemoveDivision(item,index)">
+                <v-btn small text fab @click="RemoveDivision(item, index)">
                   <v-icon small>mdi-delete</v-icon>
                 </v-btn>
               </td>
@@ -299,7 +326,9 @@
       </v-row>
       <v-dialog v-model="dialog2">
         <v-card>
-          <v-card-title class="text-center">Add {{edittype}} Item</v-card-title>
+          <v-card-title class="text-center">
+            Add {{ edittype }} Item
+          </v-card-title>
           <v-card-text>
             <v-container>
               <v-row>
@@ -321,7 +350,9 @@
       </v-dialog>
       <v-dialog v-model="dialog">
         <v-card>
-          <v-card-title class="text-center">Edit {{edittype}} Item</v-card-title>
+          <v-card-title class="text-center">
+            Edit {{ edittype }} Item
+          </v-card-title>
           <v-card-text>
             <v-container>
               <v-row>
@@ -812,18 +843,6 @@ export default {
           }
         });
     }
-    // if (this.edittype == "divisions" || this.edittype == "subjects") {
-    //   firebase
-    //     .database()
-    //     .ref("divisions")
-    //     .on("value", snapshot => {
-    //       if (this.edittype == "subjects") {
-    //         this.divisions = snapshot.val();
-    //       } else {
-    //         this.items = snapshot.val();
-    //       }
-    //     });
-    // }
     if (
       this.edittype == "years" ||
       this.edittype == "subjects" ||
@@ -844,4 +863,4 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style></style>

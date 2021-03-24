@@ -111,23 +111,11 @@ export default {
           }
 
           percentage = ((green + blue) / total) * 100;
-          //   console.log(subject, green, blue, total, percentage);
           var ts = new Date(parseInt(timestamp));
           var months = [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
+            "Jan","Feb","Mar","Apr","May","Jun",
+            "Jul","Aug","Sep","Oct","Nov","Dec"
           ];
-          // console.log(ts.getDate().toString() + " " + months[ts.getMonth()] + ", " + ts.getFullYear().toString())
           var times =
             ts.getDate().toString() +
             " " +
@@ -141,7 +129,6 @@ export default {
             percentage: percentage.toFixed(2)
           };
         }
-        // console.log(timestamps);
         return timestamps;
       }
     },
@@ -190,7 +177,6 @@ export default {
             }
           }
           percentage = ((green + blue) / total) * 100;
-          // console.log(subject, green, blue, total, percentage);
           subjects.push({
             subject: subject,
             total: total,
@@ -209,8 +195,6 @@ export default {
         }
         this.total = p.toFixed(2);
       }
-
-      // console.log(subjects);
       return subjects;
     },
     getAttendance() {
@@ -242,7 +226,6 @@ export default {
           .database()
           .ref("students")
           .once("value", snapshot => {
-            // console.log(snapshot.val())
             snapshot.forEach(course => {
               course.forEach(rollno => {
                 if (rollno.val().id == this.clgid) {
@@ -259,6 +242,5 @@ export default {
   }
 };
 </script>
-
 <style>
 </style>

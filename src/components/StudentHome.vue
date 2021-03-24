@@ -84,7 +84,6 @@ export default {
   },
   methods: {
     checkcode() {
-      //query database for a session with sessionid
       firebase
         .database()
         .ref("/sessions/" + this.code)

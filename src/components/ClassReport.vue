@@ -5,7 +5,7 @@
       <v-col cols="6">
         <v-btn color="primary" @click="printReport()" >
           <v-icon left>mdi-google-spreadsheet</v-icon>
-          <span>Export XLSX</span></v-btn>
+          <span>Export PDF</span></v-btn>
       </v-col>
       <v-spacer></v-spacer>
     </v-row>
@@ -80,6 +80,7 @@ export default {
     mask
   },
   inject: ["theme"],
+  props: ["printData"],
   data() {
     return {
       attendance: {},
@@ -87,8 +88,8 @@ export default {
       total: 0,
       expanded: [],
       cutoff: 100,
-      subject: "BI",
-      classes: "TYBSCIT-A",
+      subject: "",
+      classes: "",
       dataitems: [],
       subjects: [],
       headers: [
@@ -103,10 +104,8 @@ export default {
   computed: {
     cutoffValue() {
       if (this.cutoff >= 100) {
-        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         return (this.cutoff = 100);
       } else if (this.cutoff <= 0) {
-        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         return (this.cutoff = 0);
       } else {
         return this.cutoff;
@@ -128,9 +127,6 @@ export default {
   },
   methods: {
     expandRow(item) {
-      // would be
-      // this.expanded = [item]
-      // but if you click an expanded row, you want it to collapse
       this.expanded = item === this.expanded[0] ? [] : [item];
     },
     printReport() {
@@ -139,15 +135,15 @@ export default {
         delete data[i].subjects
         delete data[i].id
       }
-      console.log(data)
-      // this will be export a excel and the file's name is user-info-data.xlsx
-      // the default file's name is excel.xlsx
       try {
-        json2excel({
-          data,
-          name: "user-info-data",
-          formateDate: "yyyy/mm/dd"
-        });
+        // json2excel({
+        //   data,
+        //   name: "class-report",
+        //   formateDate: "yyyy/mm/dd"
+        // });
+        this.$emit("printChanged",data)
+        this.$emit("classChanged",this.subject)
+        this.$router.push("/PrintReport")
       } catch (e) {
         console.error("export error");
       }
@@ -195,7 +191,6 @@ export default {
                       : 1);
                 }
               }
-              // console.log(this.attendance[semester][subject][timestamp][student])
             }
           }
         }
